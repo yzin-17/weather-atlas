@@ -8,10 +8,35 @@
   --muted: #5b695f;
   --rule: #d6dacc;
   --soft: #ecf1e6;
+  --brand-symbol: #faf9f4;
+  --weather-sun-stroke: #a76b16;
+  --weather-sun-fill: #efb742;
+  --weather-cloud-sun: #f9f7e9;
+  --weather-cloud-fill: #e5e9e4;
+  --weather-cloud-stroke: #53655b;
+  --weather-rain: #438394;
+  --weather-snow: #5496ad;
+  --weather-lightning: #ebb03c;
+  --weather-fog: #869289;
+  --trend-fill-start: #38745b;
+  --trend-fill-end: #488660;
+  --trend-grid: #809b81;
+  --trend-line: #3b765b;
+  --trend-peak: #e6b34a;
+  --trend-peak-stroke: #395d46;
+  --trend-origin: #325b47;
+  --weather-error: #815d2d;
   --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
   --sans:
     Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans CJK SC', Arial, sans-serif;
   --serif: 'Iowan Old Style', Baskerville, Georgia, 'Noto Serif CJK SC', 'Songti SC', serif;
+}
+.weather-feedback:empty {
+  display: none;
+}
+.weather-feedback {
+  color: var(--weather-error);
+  margin: 0 0 16px;
 }
 * {
   box-sizing: border-box;

@@ -41,15 +41,15 @@ export function TemperatureTrend({ weather, t, locale }: ForecastProps) {
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <linearGradient id="plotFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#38745b" stopOpacity=".23" />
-            <stop offset="100%" stopColor="#488660" stopOpacity=".015" />
+            <stop offset="0%" stopColor="var(--trend-fill-start)" stopOpacity=".23" />
+            <stop offset="100%" stopColor="var(--trend-fill-end)" stopOpacity=".015" />
           </linearGradient>
         </defs>
         {[0.25, 0.5, 0.75].map((p) => (
           <path
             key={p}
             d={`M0 ${H * p}H${W}`}
-            stroke="#809b81"
+            stroke="var(--trend-grid)"
             strokeOpacity=".4"
             strokeDasharray="3 5"
           />
@@ -58,7 +58,7 @@ export function TemperatureTrend({ weather, t, locale }: ForecastProps) {
         <path
           d={line}
           fill="none"
-          stroke="#3b765b"
+          stroke="var(--trend-line)"
           strokeWidth="3"
           strokeLinejoin="round"
           vectorEffect="non-scaling-stroke"
@@ -67,11 +67,11 @@ export function TemperatureTrend({ weather, t, locale }: ForecastProps) {
           cx={peak[0]}
           cy={peak[1]}
           r="4.5"
-          fill="#e6b34a"
-          stroke="#395d46"
+          fill="var(--trend-peak)"
+          stroke="var(--trend-peak-stroke)"
           strokeWidth="1.5"
         />
-        <circle cx={points[0][0]} cy={points[0][1]} r="3.5" fill="#325b47" />
+        <circle cx={points[0][0]} cy={points[0][1]} r="3.5" fill="var(--trend-origin)" />
       </svg>
       <div className="trend-times">
         {timeIndices.map((i, k) => (

@@ -102,7 +102,7 @@ export function Mark({ size = 35 } = {}) {
       aria-hidden="true"
     >
       <rect x="1" y="1" width="38" height="38" rx="11" fill="currentColor" />
-      <g stroke="#faf9f4" strokeWidth="1.7" strokeLinecap="round">
+      <g stroke="var(--brand-symbol)" strokeWidth="1.7" strokeLinecap="round">
         <path d="M7 24h24M10 28h18M14 32h10M11 21a9 9 0 0 1 18 0M20 5v4m-11 2 3 3m18-3-3 3M6 19l4 1m24-1-4 1" />
       </g>
     </svg>
@@ -126,10 +126,10 @@ export function WeatherIcon({ code, size = 32 }: { code: number; size?: number }
       {(sunny || mixed) && (
         <g
           transform={mixed ? 'translate(8 1) scale(.70)' : undefined}
-          stroke="#a76b16"
+          stroke="var(--weather-sun-stroke)"
           strokeWidth="1.7"
         >
-          <circle cx="20" cy="20" r="8" fill="#efb742" />
+          <circle cx="20" cy="20" r="8" fill="var(--weather-sun-fill)" />
           {Array.from({ length: 8 }, (_, i) => (
             <path key={i} d="M20 4v4" transform={`rotate(${i * 45} 20 20)`} />
           ))}
@@ -139,22 +139,26 @@ export function WeatherIcon({ code, size = 32 }: { code: number; size?: number }
         <>
           <path
             d="M9 28h20a5.5 5.5 0 0 0 1-10.9 8.8 8.8 0 0 0-16.1-2.9 6.2 6.2 0 0 0-8.8 6A4.1 4.1 0 0 0 9 28Z"
-            fill={mixed ? '#f9f7e9' : '#e5e9e4'}
-            stroke="#53655b"
+            fill={mixed ? 'var(--weather-cloud-sun)' : 'var(--weather-cloud-fill)'}
+            stroke="var(--weather-cloud-stroke)"
             strokeWidth="1.7"
           />
           {['rain', 'drizzle'].includes(type) && (
-            <path d="m12 32-2 3m10-3-2 3m10-3-2 3" stroke="#438394" strokeWidth="2.1" />
+            <path d="m12 32-2 3m10-3-2 3m10-3-2 3" stroke="var(--weather-rain)" strokeWidth="2.1" />
           )}
           {type === 'snow' && (
-            <g fill="#5496ad">
+            <g fill="var(--weather-snow)">
               <circle cx="12" cy="33" r="1.7" />
               <circle cx="20" cy="33" r="1.7" />
               <circle cx="28" cy="33" r="1.7" />
             </g>
           )}
-          {type === 'thunder' && <path d="m20 26-4 7h4l-2 5 9-10h-6l3-2Z" fill="#ebb03c" />}
-          {type === 'fog' && <path d="M7 32h25m-20 4h15" stroke="#869289" strokeWidth="1.7" />}
+          {type === 'thunder' && (
+            <path d="m20 26-4 7h4l-2 5 9-10h-6l3-2Z" fill="var(--weather-lightning)" />
+          )}
+          {type === 'fog' && (
+            <path d="M7 32h25m-20 4h15" stroke="var(--weather-fog)" strokeWidth="1.7" />
+          )}
         </>
       )}
     </svg>
