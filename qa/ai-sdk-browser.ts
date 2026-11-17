@@ -85,6 +85,8 @@ app.stderr.on('data', (buffer: Buffer) => {
 const browser = await chromium.launch({ headless: true });
 const rows: unknown[] = [],
   errors: string[] = [];
+const run = process.env.QA_AI_SDK_RUN || 'ai-sdk';
+assert(/^[a-z0-9-]+$/.test(run));
 async function deadline<T>(promise: Promise<T>) {
   let timer: NodeJS.Timeout | undefined;
   try {
@@ -146,6 +148,7 @@ try {
       mode = 'limited';
       await send('current temperature again');
       await page.getByRole('alert').filter({ hasText: t.limited }).waitFor();
+      assert.equal(await input.inputValue(), '');
       const count = await page.locator('.ask-question').count();
       await input.fill('keep this draft');
       mode = 'fast';
@@ -190,11 +193,35 @@ try {
         .getByRole('alert')
         .filter({ hasText: t.offline })
         .waitFor();
+      assert.equal(await input.inputValue(), '');
       mode = 'fast';
       await page.getByRole('alert').getByRole('button', { name: t.retry, exact: true }).click();
       await done(4);
       assert.equal(await page.locator('.ask-question').count(), stoppedCount + 1);
       assert.equal(await page.locator('.ask-conversation .answer .list-caption').count(), 4);
+      await page.route(
+        '**/api/ask',
+        (route) =>
+          route.fulfill({
+            contentType: 'text/event-stream',
+            body: 'data: {"type":"start"}\n\ndata: {"type":"error","errorText":"{\\"status\\":503,\\"code\\":\\"FORECAST_UNAVAILABLE\\"}"}\n\ndata: [DONE]\n\n',
+          }),
+        { times: 2 },
+      );
+      await send('forecast unavailable');
+      const forecastError = page.getByRole('alert').filter({ hasText: t.askForecast });
+      await forecastError.waitFor();
+      assert.equal(await input.inputValue(), '');
+      const failedCount = await page.locator('.ask-question').count();
+      await forecastError.getByRole('button', { name: t.retry, exact: true }).click();
+      await forecastError.waitFor();
+      await page.waitForFunction(() => !document.querySelector('.ask-working'));
+      assert.equal(await input.inputValue(), '');
+      assert.equal(await page.locator('.ask-question').count(), failedCount);
+      await input.fill('forecast unavailable');
+      await forecastError.getByRole('button', { name: t.retry, exact: true }).click();
+      await done(5);
+      assert.equal(await input.inputValue(), 'forecast unavailable');
       let forceStale = true;
       await page.route('**/api/ask', async (route) => {
         if (forceStale) {
@@ -214,15 +241,15 @@ try {
         .filter({ hasText: t.askChanged })
         .waitFor();
       await page.getByRole('button', { name: t.refreshForecasts, exact: true }).click();
-      await done(5);
-      assert.equal(await page.locator('.ask-question').count(), stoppedCount + 2);
+      await done(6);
+      assert.equal(await page.locator('.ask-question').count(), stoppedCount + 3);
       assert.equal(
         await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
         false,
       );
       if (width === 390 && locale === 'zh-Hans')
         await page.screenshot({
-          path: new URL('./evidence/ai-sdk-history-mobile.png', import.meta.url).pathname,
+          path: new URL(`./evidence/${run}-history-mobile.png`, import.meta.url).pathname,
         });
       rows.push({
         width,
@@ -232,7 +259,9 @@ try {
         retryWithoutDuplicate: true,
         upstreamCancelled: true,
         draftPreserved: true,
-        historyAnswers: 5,
+        historyAnswers: 6,
+        failureDoesNotRestoreDraft: true,
+        forecastFailureExplained: true,
         staleStreamRefreshed: true,
       });
       await page.close();
@@ -245,10 +274,10 @@ try {
     .at(-1);
   if (page) {
     await page.screenshot({
-      path: new URL('./evidence/ai-sdk-browser-failure.png', import.meta.url).pathname,
+      path: new URL(`./evidence/${run}-browser-failure.png`, import.meta.url).pathname,
     });
     await writeFile(
-      new URL('./evidence/ai-sdk-browser-failure.json', import.meta.url),
+      new URL(`./evidence/${run}-browser-failure.json`, import.meta.url),
       JSON.stringify(
         {
           page: await page.locator('#weather-ask-panel').innerText(),
@@ -271,11 +300,11 @@ try {
   }
   model.closeAllConnections();
   await new Promise<void>((resolve) => model.close(() => resolve()));
-  await writeFile(new URL('./evidence/ai-sdk-browser-server.log', import.meta.url), log);
+  await writeFile(new URL(`./evidence/${run}-browser-server.log`, import.meta.url), log);
   await rm(cache, { recursive: true, force: true });
 }
 await writeFile(
-  new URL('./evidence/ai-sdk-browser.json', import.meta.url),
+  new URL(`./evidence/${run}-browser.json`, import.meta.url),
   JSON.stringify(
     {
       at: new Date().toISOString(),

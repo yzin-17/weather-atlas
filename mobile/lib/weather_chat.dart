@@ -329,6 +329,7 @@ String errorKey(Object error) {
   }
   if (status == 409) return 'changed';
   if (status == 429) return 'limited';
+  if (status == 503 && code == 'FORECAST_UNAVAILABLE') return 'askForecast';
   if (code == 'CITY_NOT_FOUND' || code == 'AMBIGUOUS_CITY') return 'askCity';
   return status == 400 ? 'askInput' : 'askFail';
 }

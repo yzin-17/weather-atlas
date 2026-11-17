@@ -22,6 +22,7 @@ export function failureKey(error: Error) {
     return 'offline' as const;
   }
   if (!isRecord(value)) return 'offline' as const;
+  if (value.status === 503 && value.code === 'FORECAST_UNAVAILABLE') return 'askForecast' as const;
   return value.status === 409
     ? ('askChanged' as const)
     : value.status === 429

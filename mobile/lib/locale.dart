@@ -254,6 +254,12 @@ const copy = <String, List<String>>{
     '暫時無法取得回答，請重試。',
     '답변을 가져올 수 없습니다. 다시 시도하세요.',
   ],
+  'askForecast': [
+    'Weather data could not be updated. Please try again shortly.',
+    '天气数据暂时无法更新，请稍后重试。',
+    '天氣資料暫時無法更新，請稍後重試。',
+    '날씨 데이터를 업데이트할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+  ],
   'changed': [
     'Forecast changed. Refresh the city and ask again.',
     '预报已更新，请刷新城市后重新提问。',

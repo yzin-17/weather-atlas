@@ -28,7 +28,6 @@ class _QuestionPageState extends State<QuestionPage> {
   final input = TextEditingController();
   final scroll = ScrollController();
   late final WeatherChat conversation;
-  int draftRevision = 0;
   bool follow = true;
 
   @override
@@ -84,37 +83,18 @@ class _QuestionPageState extends State<QuestionPage> {
     final text = (preset ?? input.text).trim();
     if (conversation.busy || text.isEmpty) return;
     input.clear();
-    final revision = ++draftRevision;
     follow = true;
     FocusScope.of(context).unfocus();
     await conversation.send(text);
-    if (mounted &&
-        conversation.error != null &&
-        revision == draftRevision &&
-        input.text.isEmpty) {
-      input.text = text;
-    }
   }
 
   Future<void> retry() async {
     if (conversation.busy) return;
-    final user = conversation.messages
-        .where((m) => m.role == MessageRole.user)
-        .last;
-    final text = messageText(user);
-    final revision = draftRevision;
-    if (input.text == text) input.clear();
     follow = true;
     if (conversation.error == 'changed') {
       await conversation.refreshAndRetry();
     } else {
       await conversation.retry();
-    }
-    if (mounted &&
-        conversation.error != null &&
-        revision == draftRevision &&
-        input.text.isEmpty) {
-      input.text = text;
     }
   }
 
@@ -347,7 +327,6 @@ class _QuestionPageState extends State<QuestionPage> {
                   TextField(
                     key: const ValueKey('chat-input'),
                     controller: input,
-                    onChanged: (_) => draftRevision++,
                     maxLength: 400,
                     minLines: 1,
                     maxLines: 4,

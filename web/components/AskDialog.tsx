@@ -53,8 +53,6 @@ export default function AskDialog({
     [stopped, setStopped] = useState(false),
     [phase, setPhase] = useState<WeatherPhase>('weather');
   const draft = useRef(''),
-    draftRevision = useRef(0);
-  const pending = useRef<{ question: string; revision: number; cleared: boolean } | null>(null),
     sending = useRef(false),
     stopping = useRef(false);
   const context = useRef<ComparisonContext | null>(null),
@@ -77,7 +75,6 @@ export default function AskDialog({
       if (stopping.current) return;
       reveal.stop();
       setErr(failureKey(error));
-      restoreDraft();
     },
     onFinish: ({ message, isAbort, isError, isDisconnect }) => {
       sending.current = false;
@@ -89,7 +86,6 @@ export default function AskDialog({
       const data = messageWeather(message);
       if (!data) {
         setErr('offline');
-        restoreDraft();
         return;
       }
       setResult(data);
@@ -128,11 +124,6 @@ export default function AskDialog({
     draft.current = value;
     setQuestion(value);
   }
-  function restoreDraft() {
-    const request = pending.current;
-    if (request?.cleared && draftRevision.current === request.revision)
-      writeDraft(request.question);
-  }
   function body(q: string) {
     return {
       question: q,
@@ -151,10 +142,7 @@ export default function AskDialog({
     stopping.current = false;
     reveal.begin();
     followAnswer.current = true;
-    const revision = draftRevision.current;
-    const cleared = !preserveDraft || draft.current.trim() === q;
-    if (cleared) writeDraft('');
-    pending.current = { question: q, revision, cleared };
+    if (!preserveDraft) writeDraft('');
     setAsked(q);
     setErr('');
     setStopped(false);
@@ -505,7 +493,6 @@ export default function AskDialog({
               placeholder={t.askHint}
               value={question}
               onChange={(e) => {
-                draftRevision.current++;
                 writeDraft(e.target.value);
               }}
               onKeyDown={(e) => {

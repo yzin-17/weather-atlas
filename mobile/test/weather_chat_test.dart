@@ -475,6 +475,78 @@ void main() {
   });
 
   for (final lang in languageNames.keys) {
+    testWidgets('$lang failures and retries never restore a sent question', (
+      t,
+    ) async {
+      final requests = <String>[];
+      final api = WeatherApi(
+        'https://test.invalid',
+        client: MockClient((r) async {
+          requests.add((jsonDecode(r.body) as Json)['question'] as String);
+          if (requests.length == 1) {
+            return http.Response('{"code":"FORECAST_UNAVAILABLE"}', 503);
+          }
+          if (requests.length == 2) {
+            return http.Response(
+              frame({
+                'type': 'error',
+                'errorText': jsonEncode({
+                  'status': 503,
+                  'code': 'FORECAST_UNAVAILABLE',
+                }),
+              }),
+              200,
+              headers: sseHeaders,
+            );
+          }
+          return sseRes(result('纽约天气已恢复'));
+        }),
+      );
+      final session = WeatherChat(
+        api: api,
+        city: seoul,
+        forecast: Forecast.fromJson(snapshot()),
+        language: lang,
+      );
+      await t.pumpWidget(
+        MaterialApp(
+          home: QuestionPage(
+            api: api,
+            city: seoul,
+            forecast: session.forecast,
+            w: Words(lang),
+            session: session,
+          ),
+        ),
+      );
+      const question = '今天纽约天气怎样';
+      final field = find.byKey(const ValueKey('chat-input'));
+      await t.enterText(field, question);
+      await t.tap(find.byKey(const ValueKey('chat-send')));
+      await settleChat(t);
+      expectSync(session.error, 'askForecast');
+      expectSync(find.text(Words(lang)('askForecast')), findsOneWidget);
+      expectSync(t.widget<TextField>(field).controller!.text, isEmpty);
+      await t.tap(find.byKey(const ValueKey('chat-retry')));
+      await settleChat(t);
+      expectSync(session.error, 'askForecast');
+      expectSync(t.widget<TextField>(field).controller!.text, isEmpty);
+      // 即便新草稿恰好等于失败问题，重试也不修改它。
+      await t.enterText(field, question);
+      await t.tap(find.byKey(const ValueKey('chat-retry')));
+      await settleChat(t);
+      expectSync(session.error, isNull);
+      expectSync(t.widget<TextField>(field).controller!.text, question);
+      expectSync(requests, [question, question, question]);
+      expectSync(
+        session.messages.where((m) => m.role == MessageRole.user),
+        hasLength(1),
+      );
+      await t.pumpWidget(const SizedBox());
+      session.dispose();
+      api.close();
+    });
+
     testWidgets(
       '$lang composer clear, history, hide prompts, stop, preserve new draft, city day evidence',
       (t) async {

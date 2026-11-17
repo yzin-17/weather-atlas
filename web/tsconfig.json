@@ -68,7 +68,9 @@
     ".next-chengdu-location/types/**/*.ts",
     ".next-chengdu-location/dev/types/**/*.ts",
     ".next-web-cache-refresh/types/**/*.ts",
-    ".next-web-cache-refresh/dev/types/**/*.ts"
+    ".next-web-cache-refresh/dev/types/**/*.ts",
+    ".next-ai-failure-input/types/**/*.ts",
+    ".next-ai-failure-input/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
