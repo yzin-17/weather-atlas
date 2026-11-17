@@ -80,8 +80,30 @@ python3 -m unittest discover -s tools -p test_mobile_release.py -v
 | 辅助脚本回归 | 7/7 通过，覆盖版本／标签、地址、三类产物齐全、普通入口、缺少 kernel 及越界路径。 |
 | 三类历史真实产物 | Android APK 160,669,976 B、iOS 模拟器 ZIP 41,130,957 B、未签名设备 ZIP 7,780,827 B；CRC、应用结构、调试普通入口及完整 SHA-256 清单通过。来源为上一轮 `outputs/v1.1.2-flutter-reverse-recovery`，不是 GitHub 构建结果。 |
 | `flutter pub get --help` | 确认已验证 SDK 支持本流程的 `--enforce-lockfile` 参数。 |
-| GitHub 托管构建／公开 Release | 未执行；本地没有 Git remote，等待目标仓库。没有据此创建仓库、提交现有工作区或推送标签。 |
+| GitHub 托管构建／公开 Release | 手动与标签触发两轮全部通过；`v1.1.2+5` 已公开，5 个附件的状态及服务器摘要已核对，详见下节。 |
 
 首次辅助脚本回归发现本机默认 Python 不支持 `hashlib.file_digest`，已改为标准库分块哈希，以兼容现有工具链。真实旧产物的命名与本流水线命名不同，因此完整清单验证使用本轮约定的文件名，不将改名视为新的构建。
 
-GitHub 托管运行、真实下载地址和公开 Release 状态，需目标仓库接入并实际运行后分别记录；本地语法检查和历史安装包验证不能替代这些证据。当前本地仓库尚未配置 Git remote，目标 GitHub 仓库待用户指定。
+## GitHub 接入与云端证据
+
+按用户授权创建公开仓库 [yzin-17/weather-atlas](https://github.com/yzin-17/weather-atlas)。初次公开使用独立快照，不提交、重置或更改原工作区的 Git 历史和索引。快照只包含可公开源码、测试、精选验收记录和配置示例；本地环境配置、签名、构建缓存及 `qa/evidence` 原始日志不上传。发布前对照本机实际模型密钥并扫描常见凭据格式，没有匹配。
+
+公开源码提交为 `87c6c1befdb927ee4e75d007bbd3c0ffae13e101`，移动端版本 `1.1.2+5`。第一次 [手动构建 44043924516](https://github.com/yzin-17/weather-atlas/actions/runs/44043924516) 于 2026-11-17 16:06–16:15（Asia/Shanghai）完成，五个任务全部成功；Flutter 实际全量 79/79、分析无问题，辅助脚本 7/7。三类产物的 CRC、普通入口及完整清单全部通过。这是当前公开快照的云端结果，与前轮本机 75 项分别记录。
+
+托管 iOS 工具链实际为 Flutter 3.38.9／Dart 3.10.8、Xcode 16.4（16F6），成功构建模拟器 Debug 与设备 Release；没有把本机 Xcode 27.2 或本机模拟器启动结果当作本次 CI 结果。
+
+推送标签 `v1.1.2+5` 后，[自动发布 44045452055](https://github.com/yzin-17/weather-atlas/actions/runs/44045452055) 于 2026-11-17 16:17–16:26（Asia/Shanghai）完成，五个任务全部成功，Flutter 再次 79/79、分析无问题。第一轮只构建，第二轮实际通过标签自动创建和公开 Release，两种触发路径分别验收。
+
+[Release v1.1.2+5](https://github.com/yzin-17/weather-atlas/releases/tag/v1.1.2%2B5) 于 2026-11-17 16:26:43（Asia/Shanghai）公开，`draft=false`，附件共 5 个，均为已上传状态：
+
+| 正式附件 | 字节 | 服务器端 SHA-256 |
+| --- | ---: | --- |
+| Android Debug APK | 159,222,506 | `b62e7945225eac4039c9b39040093d3850af786c1fc62017ecd9af595bccb42c` |
+| iOS Simulator Debug ZIP | 54,447,658 | `27eedeefe8c3d78cdeb7709d5ed27f4af05669c929f309ab06c948a0fd1ca1fb` |
+| iOS Device Release Unsigned ZIP | 7,625,952 | `9d150a5e6e11bc58e6fd36221fc11288a79159c15c73fc451a8e5ab19a39e9d6` |
+
+另两份附件为 `BUILD-MANIFEST.json` 与 `SHA256SUMS`。通过 GitHub Release API 读取这两份小文件，逐项核对大附件的名称、大小、`state=uploaded` 和服务器计算的 `digest`，均与流水线已做 CRC 校验的清单一致；没有为验证摘要重复下载大附件。两份清单自身的服务器摘要也与下载内容一致。远端标签提交与清单提交均为上述 `87c6c1b…`。
+
+构建未配置公网 `WEATHER_API_BASE`／`WEATHER_SITE_URL` 或固定调试签名，也没有上传本机签名；Release 说明明确要求首次安装后填写可达的天气服务，并说明 Android 覆盖升级及 iOS 未签名的限制。本次没有将 CI 构建成功写成真机安装、真实 GPS 或商店发布成功。
+
+后续可从公开仓库克隆正常开发，再推送版本标签；原有工作区仍保留未提交修改，本轮没有替它强行合并或改写历史。

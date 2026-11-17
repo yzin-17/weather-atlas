@@ -1,6 +1,6 @@
 # Weather Atlas 天气图册
 
-移动端 GitHub Actions 自动打包与 Release 发布配置见 [GitHub 移动端发布](docs/GITHUB-MOBILE-RELEASE.md)：推送版本标签自动发布，手动运行可仅构建；包含 Android 调试 APK、iOS 模拟器包、未签名设备包及校验清单。
+公开仓库：[yzin-17/weather-atlas](https://github.com/yzin-17/weather-atlas)。移动端 GitHub Actions 自动打包与 Release 发布配置见 [GitHub 移动端发布](docs/GITHUB-MOBILE-RELEASE.md)：推送版本标签自动发布，手动运行可仅构建；包含 Android 调试 APK、iOS 模拟器包、未签名设备包及校验清单。[查看流水线](https://github.com/yzin-17/weather-atlas/actions/workflows/mobile-release.yml)。
 
 Flutter 问答已接入 `ai_ui_stream`，与 Web 共用 SSE 协议，支持历史对话、逐字显示、停止、手动重试及单城／双城连续追问。发送清空输入，首次提问后隐藏推荐问题，依据绑定回答自己的城市与天气快照。实现、实际测试和本轮安装包见 [Flutter 流式对话验收](qa/FLUTTER-AI-STREAM.md)。
 
