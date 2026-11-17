@@ -1,0 +1,2 @@
+"NSLocationWhenInUseUsageDescription" = "대략적인 위치를 사용하여 현지 일기예보를 표시합니다.";
+"NSLocalNetworkUsageDescription" = "이 네트워크의 Weather Atlas 날씨 서비스에 연결합니다.";

@@ -1,0 +1,87 @@
+# GitHub 移动端自动构建与 Release
+
+日期：2026-11-17。本配置负责从同一 Git 提交构建移动端普通应用，并把全部产物发布到 GitHub Release；不涉及 Google Play、App Store 或 TestFlight。
+
+## 触发方式
+
+- 推送 `v*` 标签时，自动执行版本校验、Flutter 分析／回归、Android／iOS 构建和 Release 发布。
+- 在 Actions 的「移动端构建与发布」中点击 Run workflow：`release_tag` 留空时只构建，产物保留在该次运行的 Artifacts 中；填写已有版本标签时，为该标签构建并发布。
+- 标签必须与 `mobile/pubspec.yaml` 匹配。例如 `version: 1.1.2+5` 接受 `v1.1.2` 或 `v1.1.2+5`。不会因填写标签而创建新的 Git tag；手动发布需要先推送该标签。
+
+配置位于 [mobile-release.yml](../.github/workflows/mobile-release.yml)，辅助校验为 [mobile_release.py](../tools/mobile_release.py)。固定 Flutter 3.38.9、JDK 21，Android 使用 Ubuntu 24.04，iOS 使用 macOS 15 及其预装 Xcode。每次 iOS 构建输出 Flutter、Xcode 和 CocoaPods 实际版本，不将本机 Xcode 版本当作托管机器版本。
+
+## 产物与签名
+
+以 `1.1.2+5` 为例，Release 会包含：
+
+| 文件 | 签名与安装方式 |
+| --- | --- |
+| `Weather-Atlas-v1.1.2-build5-Android-Debug.apk` | Android 调试签名，可安装到设备；不是商店发布签名。 |
+| `Weather-Atlas-v1.1.2-build5-iOS-Simulator-Debug.app.zip` | 模拟器 Debug 应用，架构由实际托管机器及 Xcode 决定；解压后安装到兼容架构模拟器。 |
+| `Weather-Atlas-v1.1.2-build5-iOS-Device-Release-Unsigned.app.zip` | 未签名设备 Release 应用，不能直接在真机安装。 |
+| `BUILD-MANIFEST.json`、`SHA256SUMS` | 记录版本、构建号、完整 Git 提交、文件大小和 SHA-256。 |
+
+所有平台都显式使用 `--target lib/main.dart`。发布前要求三类产物齐全，逐条校验 ZIP／APK CRC、应用结构与调试 kernel 普通入口，拒绝已知集成测试入口。iOS 设备 Release 为 AOT，不要求调试 kernel。
+
+构建任务仅有 `contents: read`，发布任务单独授予 `contents: write`，使用 GitHub 提供的短期 `GITHUB_TOKEN`，不需要个人 PAT。Actions 固定完整提交 SHA。所有构建、分析或归档门禁失败时，都不会公开 Release。
+
+上传先使用草稿，全部上传成功后才公开；同标签的草稿可重新运行恢复上传。已公开版本不会覆盖，需要递增版本／构建号并使用新标签。发布前再次核对远端标签提交，避免构建期间标签移动导致包与源码不一致。预发布版本如 `1.2.0-rc.1+6` 自动标记为 prerelease。
+
+## 仓库配置
+
+在 GitHub 仓库 Settings → Secrets and variables → Actions 配置：
+
+| 类别／名称 | 用途与空值行为 |
+| --- | --- |
+| Variable `WEATHER_API_BASE` | 写入客户端的默认天气服务 origin，如 `https://weather.example.org`，不是密钥。留空沿用 App 的开发默认值，用户首次安装后需在设置中填写自己的可达服务地址。对外发布时应配置真实公网 HTTPS。 |
+| Variable `WEATHER_SITE_URL` | 分享链接的公开网站 origin；留空沿用 App 现有行为，使用当前天气服务地址。 |
+| Secret `ANDROID_DEBUG_KEYSTORE_BASE64` | 可选的固定 Android 调试 keystore，别名 `androiddebugkey`、密码 `android`。用于多次 CI 构建保持签名身份。留空由托管机器生成调试签名，不保证能覆盖安装另一次运行或本机签名的旧包。 |
+
+构建变量会公开写入应用，只允许 HTTP(S) origin，不应填入带账号或查询令牌的 URL；服务端模型密钥不进入此流程。临时调试密钥在 Android 任务结束时清理。需要保留原安装数据升级时，须使用原包的同一调试密钥；切勿先卸载来验证数据保留。
+
+将固定调试 keystore 上传到指定仓库的示例命令如下，路径按实际文件调整；标准输入直接传给 `gh`，不输出密钥：
+
+```sh
+base64 < ~/.android/debug.keystore | gh secret set ANDROID_DEBUG_KEYSTORE_BASE64 --repo <owner>/<repo>
+gh variable set WEATHER_API_BASE --body 'https://实际天气域名' --repo <owner>/<repo>
+gh variable set WEATHER_SITE_URL --body 'https://实际网站域名' --repo <owner>/<repo>
+```
+
+本轮不会自动上传本机签名或创建新签名。iOS 设备签名需另行提供开发者证书、密码和匹配的描述文件后再配置签名构建；当前流程准确交付未签名产物。
+
+## 发布操作
+
+将完整项目和本次配置提交到目标 GitHub 仓库后，先执行一次留空 `release_tag` 的手动运行。确认三类产物及工具链后，再发布与移动端版本匹配的标签：
+
+```sh
+gh workflow run mobile-release.yml --ref main --repo <owner>/<repo>
+git tag v1.1.2+5 <已审核的提交>
+git push origin v1.1.2+5
+```
+
+查看 Actions 中的分析、测试、Android、iOS 和发布任务；最终 Release 页面应有三类移动端产物和两份清单。Artifacts 默认保留 14 天；Release 附件按仓库的 Release 管理策略保留。
+
+## 本次验证与取舍
+
+本次只修改流水线、打包辅助脚本、对应测试和本说明；不改产品、原有签名配置或主线程工作区的其他修改。移动端现有业务测试由流水线运行，不因配置 CI 在本机重复构建整套产品。
+
+本地验证命令：
+
+```sh
+actionlint .github/workflows/mobile-release.yml
+python3 -m unittest discover -s tools -p test_mobile_release.py -v
+```
+
+此外使用已经实际构建的 Android APK、iOS 模拟器和未签名设备 ZIP，按流水线命名在独立临时目录中验证 CRC、普通入口和完整清单；不重新打包或覆盖原交付文件。
+
+| 检查 | 2026-11-17 实际结果 |
+| --- | --- |
+| `actionlint .github/workflows/mobile-release.yml` | 通过，最终格式检查及 `git diff --check` 同时通过。 |
+| 辅助脚本回归 | 7/7 通过，覆盖版本／标签、地址、三类产物齐全、普通入口、缺少 kernel 及越界路径。 |
+| 三类历史真实产物 | Android APK 160,669,976 B、iOS 模拟器 ZIP 41,130,957 B、未签名设备 ZIP 7,780,827 B；CRC、应用结构、调试普通入口及完整 SHA-256 清单通过。来源为上一轮 `outputs/v1.1.2-flutter-reverse-recovery`，不是 GitHub 构建结果。 |
+| `flutter pub get --help` | 确认已验证 SDK 支持本流程的 `--enforce-lockfile` 参数。 |
+| GitHub 托管构建／公开 Release | 未执行；本地没有 Git remote，等待目标仓库。没有据此创建仓库、提交现有工作区或推送标签。 |
+
+首次辅助脚本回归发现本机默认 Python 不支持 `hashlib.file_digest`，已改为标准库分块哈希，以兼容现有工具链。真实旧产物的命名与本流水线命名不同，因此完整清单验证使用本轮约定的文件名，不将改名视为新的构建。
+
+GitHub 托管运行、真实下载地址和公开 Release 状态，需目标仓库接入并实际运行后分别记录；本地语法检查和历史安装包验证不能替代这些证据。当前本地仓库尚未配置 Git remote，目标 GitHub 仓库待用户指定。

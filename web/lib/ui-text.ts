@@ -1,0 +1,322 @@
+import type { Locale } from './types.ts';
+import { locales } from './catalog.ts';
+const rows = {
+  copyLink: ['复制城市链接', '複製城市連結', 'Copy city link', '도시 링크 복사'],
+  linkCopied: ['已复制城市链接', '已複製城市連結', 'City link copied', '도시 링크를 복사했습니다'],
+  askCity: [
+    '请补充城市的地区和国家，明确要比较的两座城市。',
+    '請補充城市的地區和國家，明確要比較的兩座城市。',
+    'Include the region and country for both comparison cities.',
+    '비교할 두 도시의 지역과 국가를 입력하세요.',
+  ],
+  askInput: [
+    '请明确两座城市、日期、时段和时区。',
+    '請明確兩座城市、日期、時段和時區。',
+    'Specify both cities, date, period and timezone.',
+    '두 도시, 날짜, 시간대와 기준 시간대를 지정하세요.',
+  ],
+  forecast: ['天气预报', '天氣預報', 'Forecast', '일기예보'],
+  homeTitle: ['全球城市天气', '全球城市天氣', 'Global city weather', '전 세계 도시 날씨'],
+  homeDescription: [
+    '搜索全球城市，查看当地当前天气、未来 24 小时与 7 天预报，并比较两座城市的天气。',
+    '搜尋全球城市，查看當地目前天氣、未來 24 小時與 7 天預報，並比較兩座城市的天氣。',
+    'Find cities worldwide, check current weather, hourly and 7-day forecasts, and compare the weather in two cities.',
+    '전 세계 도시를 검색하고 현재 날씨, 24시간 및 7일 예보를 확인하며 두 도시의 날씨를 비교하세요.',
+  ],
+  homeCities: ['城市天气', '城市天氣', 'City forecasts', '도시별 예보'],
+  find: ['搜索地点', '搜尋地點', 'Find a place', '장소 검색'],
+  location: ['当前位置', '目前位置', 'Current location', '현재 위치'],
+  selectedLocation: ['所选位置', '所選位置', 'Selected location', '선택한 위치'],
+  resolvingCity: ['正在识别城市…', '正在辨識城市…', 'Finding city…', '도시를 찾는 중…'],
+  retryCity: ['重新识别城市', '重新辨識城市', 'Retry city lookup', '도시 이름 다시 찾기'],
+  here: ['使用我的位置', '使用我的位置', 'Use my location', '내 위치 사용'],
+  map: ['地图选点', '地圖選點', 'Choose on map', '지도에서 선택'],
+  mapAllCities: [
+    '显示当前与收藏地点',
+    '顯示目前與收藏地點',
+    'Show current and saved places',
+    '현재 및 저장한 위치 표시',
+  ],
+  mapConfirmPreview: [
+    '确认后加载该点天气',
+    '確認後載入此處天氣',
+    'Confirm to load this point’s forecast',
+    '확인하면 이 위치의 예보를 불러옵니다',
+  ],
+  mapWeatherError: [
+    '部分天气暂不可用',
+    '部分天氣暫時無法使用',
+    'Some weather is unavailable',
+    '일부 날씨를 불러올 수 없습니다',
+  ],
+  mapTitle: [
+    '选择地图上的地点',
+    '選擇地圖上的地點',
+    'Choose a point on the map',
+    '지도에서 위치 선택',
+  ],
+  mapHelp: [
+    '点击地图移动标记，然后查看此处天气。',
+    '點選地圖移動標記，再查看此處天氣。',
+    'Tap the map to place a pin, then view its forecast.',
+    '지도를 눌러 핀을 놓고 예보를 확인하세요.',
+  ],
+  mapNote: [
+    '底图地名使用当地语言',
+    '底圖地名使用當地語言',
+    'Base map uses local place names',
+    '기본 지도는 현지 지명을 표시합니다',
+  ],
+  mapError: [
+    '底图加载失败，仍可使用搜索或坐标选点。',
+    '底圖載入失敗，仍可使用搜尋或座標選點。',
+    'Map tiles are unavailable. Use search or enter coordinates.',
+    '지도 타일을 불러올 수 없습니다. 검색하거나 좌표를 입력하세요.',
+  ],
+  lat: ['纬度', '緯度', 'Latitude', '위도'],
+  lon: ['经度', '經度', 'Longitude', '경도'],
+  view: ['查看天气', '查看天氣', 'View forecast', '예보 보기'],
+  close: ['关闭', '關閉', 'Close', '닫기'],
+  back: ['返回', '返回', 'Back', '뒤로'],
+  searchHint: [
+    '搜索全球城市或城镇',
+    '搜尋全球城市或城鎮',
+    'Search cities and towns worldwide',
+    '전 세계 도시 검색',
+  ],
+  popular: ['热门城市', '熱門城市', 'Popular cities', '인기 도시'],
+  searching: ['搜索中…', '搜尋中…', 'Searching…', '검색 중…'],
+  noResults: ['没有匹配地点', '沒有相符地點', 'No places found', '검색 결과가 없습니다'],
+  twoChars: [
+    '输入至少两个字符',
+    '輸入至少兩個字元',
+    'Enter at least two characters',
+    '두 글자 이상 입력하세요',
+  ],
+  offline: [
+    '请求失败，请稍后重试。',
+    '請求失敗，請稍後再試。',
+    'The request failed. Please try again.',
+    '요청에 실패했습니다. 다시 시도해 주세요.',
+  ],
+  denied: [
+    '定位权限已被拒绝。请在浏览器的网站设置中允许定位，再重试。',
+    '定位權限已遭拒絕。請在瀏覽器的網站設定中允許定位，再重試。',
+    'Location permission was denied. Allow location in your browser’s site settings, then retry.',
+    '위치 권한이 거부되었습니다. 브라우저의 사이트 설정에서 위치를 허용한 뒤 다시 시도하세요.',
+  ],
+  locationSecure: [
+    '当前连接无法申请定位权限。请使用 HTTPS 地址；本机可使用 localhost。',
+    '目前連線無法申請定位權限。請使用 HTTPS 網址；本機可使用 localhost。',
+    'This connection cannot request location permission. Use HTTPS, or localhost on this device.',
+    '현재 연결에서는 위치 권한을 요청할 수 없습니다. HTTPS 주소나 이 기기의 localhost를 사용하세요.',
+  ],
+  locateFail: [
+    '无法获取位置，可以重试或搜索地点。',
+    '無法取得位置，可以重試或搜尋地點。',
+    'Location unavailable. Retry or search for a place.',
+    '위치를 찾지 못했습니다. 다시 시도하거나 장소를 검색하세요.',
+  ],
+  locating: ['正在获取位置…', '正在取得位置…', 'Finding your location…', '위치를 찾는 중…'],
+  retry: ['重试', '重試', 'Try again', '다시 시도'],
+  askStop: ['停止生成', '停止產生', 'Stop generating', '생성 중지'],
+  askStopped: ['已停止生成。', '已停止產生。', 'Generation stopped.', '생성을 중지했습니다.'],
+  askDisplaying: ['正在显示回答…', '正在顯示回答…', 'Displaying answer…', '답변을 표시하는 중…'],
+  askPlanning: [
+    '正在理解问题…',
+    '正在理解問題…',
+    'Understanding your question…',
+    '질문을 이해하는 중…',
+  ],
+  askSearching: ['正在查找城市…', '正在尋找城市…', 'Finding the city…', '도시를 찾는 중…'],
+  askWeather: ['正在查询预报…', '正在查詢預報…', 'Checking the forecast…', '예보를 확인하는 중…'],
+  now: ['现在', '現在', 'Now', '지금'],
+  current: ['当前天气', '目前天氣', 'Current conditions', '현재 날씨'],
+  today: ['今天', '今天', 'Today', '오늘'],
+  high: ['最高', '最高', 'High', '최고'],
+  low: ['最低', '最低', 'Low', '최저'],
+  rain: ['降水概率', '降雨機率', 'Rain chance', '강수 확률'],
+  hourly: ['逐小时天气', '逐時天氣', 'Hourly weather', '시간별 날씨'],
+  week: ['7 天预报', '7 天預報', 'Week ahead', '주간 예보'],
+  cities: ['其他城市', '其他城市', 'Other cities', '다른 도시'],
+  add: ['添加城市', '新增城市', 'Add a city', '도시 추가'],
+  saved: ['已收藏', '已收藏', 'Saved', '저장됨'],
+  save: ['收藏城市', '收藏城市', 'Save city', '도시 저장'],
+  remove: ['移除', '移除', 'Remove', '삭제'],
+  emptyCities: [
+    '收藏城市后，在这里快速查看天气。',
+    '收藏城市後，在此快速查看天氣。',
+    'Save a city to see its weather here.',
+    '도시를 저장하면 이곳에서 날씨를 볼 수 있습니다.',
+  ],
+  temp: ['温度', '溫度', 'Temperature', '기온'],
+  range: ['全周温度范围', '全週溫度範圍', 'Weekly temperature range', '주간 기온 범위'],
+  next24: ['未来 24 小时', '未來 24 小時', 'Next 24 hours', '향후 24시간'],
+  trend: ['温度走势', '溫度趨勢', 'Temperature trend', '기온 변화'],
+  source: ['数据来源', '資料來源', 'Weather data', '기상 데이터'],
+  updated: ['数据时间', '資料時間', 'Weather as of', '관측 기준'],
+  fetched: ['获取于', '取得於', 'Retrieved', '수신 시각'],
+  stale: ['缓存预报', '快取預報', 'Cached forecast', '저장된 예보'],
+  refreshingForecast: [
+    '正在更新缓存预报…',
+    '正在更新快取預報…',
+    'Updating cached forecast…',
+    '저장된 예보를 업데이트하는 중…',
+  ],
+  refreshFailed: [
+    '刷新失败，正在显示缓存预报',
+    '重新整理失敗，正在顯示快取預報',
+    'Refresh failed. Showing cached forecast.',
+    '새로고침에 실패하여 저장된 예보를 표시합니다.',
+  ],
+  demo: [
+    '示例数据 · 非实时',
+    '範例資料 · 非即時',
+    'Sample data · not live',
+    '샘플 데이터 · 실시간 아님',
+  ],
+  unavailable: [
+    '天气暂时不可用',
+    '天氣暫時無法取得',
+    'Forecast unavailable',
+    '예보를 불러올 수 없습니다',
+  ],
+  loading: ['载入中…', '載入中…', 'Loading…', '불러오는 중…'],
+  loadingWeather: [
+    '正在加载所选位置的天气…',
+    '正在載入所選位置的天氣…',
+    'Loading weather for the selected location…',
+    '선택한 위치의 날씨를 불러오는 중…',
+  ],
+  language: ['语言', '語言', 'Language', '언어'],
+  system: ['跟随系统', '跟隨系統', 'Use system language', '시스템 언어'],
+  ask: ['问天气', '問天氣', 'Ask about the forecast', '예보에 질문하기'],
+  minimizeAsk: ['收起问天气', '收起問天氣', 'Minimize weather chat', '날씨 대화 접기'],
+  askWelcome: [
+    '想了解什么天气？',
+    '想了解什麼天氣？',
+    'What would you like to know?',
+    '어떤 날씨가 궁금하세요?',
+  ],
+  askFootnote: [
+    '回答依据当前预报，天气可能变化。',
+    '回答依據目前預報，天氣可能變化。',
+    'Answers use the current forecast. Weather can change.',
+    '현재 예보에 기반한 답변이며 날씨는 바뀔 수 있습니다.',
+  ],
+  comparePrompt: [
+    '首尔和台北明天早上 7–9 点，哪里更容易下雨？',
+    '首爾和台北明天早上 7–9 點，哪裡更容易下雨？',
+    'Compare Seoul and Taipei tomorrow morning 7–9: where is rain more likely?',
+    '서울과 타이베이 내일 오전 7–9시 어디가 비가 올 가능성이 높나요?',
+  ],
+  followAfternoon: ['那下午呢？', '那下午呢？', 'What about the afternoon?', '그럼 오후는요?'],
+  followCold: ['哪个更冷？', '哪個更冷？', 'Which is colder?', '어디가 더 추워요?'],
+  testTiles: [
+    '本地地图测试图层',
+    '本機地圖測試圖層',
+    'Local map test layer',
+    '로컬 지도 테스트 레이어',
+  ],
+  refreshForecasts: [
+    '刷新预报并重试',
+    '重新整理預報並重試',
+    'Refresh forecasts and retry',
+    '예보 새로고침 후 다시 시도',
+  ],
+  askShort: ['问天气', '問天氣', 'Ask weather', '날씨 질문'],
+  askHint: [
+    '问问这个地点的天气…',
+    '問問這個地點的天氣…',
+    'Ask about this place’s weather…',
+    '이곳의 날씨를 물어보세요…',
+  ],
+  submit: ['提问', '提問', 'Ask', '질문'],
+  prompt1: [
+    '未来 6 小时需要带伞吗？',
+    '未來 6 小時需要帶傘嗎？',
+    'Do I need an umbrella in the next 6 hours?',
+    '앞으로 6시간 동안 우산이 필요할까요?',
+  ],
+  prompt2: [
+    '今天最暖和的是几点？',
+    '今天最暖和的是幾點？',
+    'When is the warmest hour today?',
+    '오늘 기온이 가장 높은 시간은 언제인가요?',
+  ],
+  prompt3: [
+    '未来 7 天天气如何？',
+    '未來 7 天天氣如何？',
+    'What is the outlook for the next 7 days?',
+    '앞으로 7일 동안 날씨는 어떤가요?',
+  ],
+  evidence: ['预报依据', '預報依據', 'Forecast evidence', '예보 근거'],
+  rules: ['本地规则解读', '本機規則解讀', 'Forecast rules', '규칙 기반 해석'],
+  model: ['AI 解读', 'AI 解讀', 'AI interpretation', 'AI 해석'],
+  askChanged: [
+    '天气数据已更新，请刷新后重试。',
+    '天氣資料已更新，請重新整理後再試。',
+    'The forecast has changed. Refresh and ask again.',
+    '예보가 갱신되었습니다. 새로고침 후 질문하세요.',
+  ],
+  limited: [
+    '提问频率过高，请稍后再试。',
+    '提問頻率過高，請稍後再試。',
+    'Too many requests. Try again shortly.',
+    '요청이 너무 많습니다. 잠시 후 다시 시도하세요.',
+  ],
+  result: ['匹配地点', '相符地點', 'Matching places', '검색 결과'],
+  chartTime: ['当地时间', '當地時間', 'Local time', '현지 시간'],
+  description: [
+    '逐小时天气和未来七天的温度、降水概率及当地预报。',
+    '逐時天氣及未來七天的溫度、降雨機率與當地預報。',
+    'Hourly temperatures, rain chances and the local seven-day forecast.',
+    '시간별 기온, 강수 확률 및 7일간의 현지 예보.',
+  ],
+  savedMessage: [
+    '已加入其他城市',
+    '已加入其他城市',
+    'Added to other cities',
+    '다른 도시에 추가했습니다',
+  ],
+  searchTitle: ['选择地点', '選擇地點', 'Choose a location', '장소 선택'],
+  demoScope: [
+    '示例模式仅包含目录城市。',
+    '範例模式僅包含目錄城市。',
+    'Sample mode includes directory cities only.',
+    '샘플 모드에서는 목록에 있는 도시만 지원합니다.',
+  ],
+  allLanguages: ['语言选择', '語言選擇', 'Choose language', '언어 선택'],
+} satisfies Record<string, [string, string, string, string]>;
+export type Labels = Record<keyof typeof rows, string>;
+export function labels(locale: Locale): Labels {
+  const i = locales.indexOf(locale);
+  return Object.fromEntries(
+    Object.entries(rows).map(([key, values]) => [key, values[i] ?? values[2]]),
+  ) as Labels;
+}
+const conditions = {
+  clear: ['晴朗', '晴朗', 'Clear', '맑음'],
+  partly: ['晴间多云', '晴時多雲', 'Partly cloudy', '구름 조금'],
+  cloud: ['阴天', '陰天', 'Overcast', '흐림'],
+  fog: ['雾', '霧', 'Fog', '안개'],
+  drizzle: ['毛毛雨', '毛毛雨', 'Drizzle', '이슬비'],
+  rain: ['下雨', '下雨', 'Rain', '비'],
+  snow: ['降雪', '降雪', 'Snow', '눈'],
+  thunder: ['雷暴', '雷暴', 'Thunderstorms', '뇌우'],
+  unknown: ['天气未知', '天氣未知', 'Unknown conditions', '날씨 정보 없음'],
+};
+export function typeFor(code: number) {
+  if (code === 0) return 'clear';
+  if (code === 1 || code === 2) return 'partly';
+  if (code === 3) return 'cloud';
+  if ([45, 48].includes(code)) return 'fog';
+  if (code >= 51 && code <= 57) return 'drizzle';
+  if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return 'rain';
+  if ((code >= 71 && code <= 77) || [85, 86].includes(code)) return 'snow';
+  if (code >= 95 && code <= 99) return 'thunder';
+  return 'unknown';
+}
+export function condition(code: number, locale: Locale) {
+  return conditions[typeFor(code)][locales.indexOf(locale)];
+}

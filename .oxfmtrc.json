@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "endOfLine": "lf",
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/build/**",
+    "**/Pods/**",
+    "**/.next*/**",
+    "**/.cache*/**",
+    "**/.weather-cache*/**",
+    "**/.dart_tool/**",
+    ".format-tools/**",
+    "qa/evidence/**",
+    "qa/map-loading-ab.json",
+    "**/package-lock.json",
+    "**/*.md"
+  ]
+}

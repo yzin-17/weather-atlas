@@ -1,0 +1,2 @@
+"NSLocationWhenInUseUsageDescription" = "Show the local forecast for your approximate position.";
+"NSLocalNetworkUsageDescription" = "Connect to your Weather Atlas server on this network.";

@@ -1,0 +1,328 @@
+{
+  "说明": "从清理前已提交的验收记录提取，保留历史结论；本次清理没有重新运行天气、模型或性能实验。",
+  "来源提交": "7d5b7cee831697ff97011d4776dcb17bb975dd4a",
+  "代码回归": {
+    "at": "2026-11-16T17:59:12.647536+00:00",
+    "webTests": 55,
+    "webBuild": "passed",
+    "flutterAnalyze": "no issues",
+    "flutterTests": 21
+  },
+  "格式检查": {
+    "文件数": 136,
+    "工具分布": {
+      "oxfmt": 110,
+      "ruby": 3,
+      "kotlin": 4,
+      "dart": 13,
+      "swift": 4,
+      "clang": 1,
+      "python": 1
+    },
+    "钩子结果": [
+      {
+        "name": "首次提交：暂存未格式化、工作区已格式化，必须拦截",
+        "exitCode": 1,
+        "worktreeAndIndexPreserved": true
+      },
+      {
+        "name": "仅暂存内容已格式化、工作区另有修改，应通过且保留工作区",
+        "exitCode": 0,
+        "worktreeAndIndexPreserved": true
+      },
+      {
+        "name": "语法错误必须拦截",
+        "exitCode": 1,
+        "worktreeAndIndexPreserved": true
+      },
+      {
+        "name": "使用暂存的格式配置，不能被工作区配置掩盖",
+        "exitCode": 1,
+        "worktreeAndIndexPreserved": true
+      },
+      {
+        "name": "完整源码首次暂存：所有语言的索引快照检查通过",
+        "exitCode": 0,
+        "sourceFilesInTemporaryIndex": 142
+      }
+    ]
+  },
+  "真实模型": {
+    "记录时间": "2026-11-16T16:17:40.199Z",
+    "说明": "实际模型 HTTP 调用；包含修复前失败、复测和原生验收。HTTP 200 仍可能被服务端计划校验拒绝，应用结果见对应专项记录。此投影不保存凭据或问答正文。",
+    "调用数": 85,
+    "返回数": 85,
+    "模型": ["gpt-4.1-mini"],
+    "耗时中位数": 1457
+  },
+  "地图按需加载": {
+    "时间": "2026-11-16T12:22:25.914Z",
+    "浏览器": "159.0.8154.6",
+    "条件": {
+      "viewport": "390x844",
+      "cpu": 3,
+      "downloadBps": 200000,
+      "latency": 70,
+      "cache": false,
+      "upstream": "demo",
+      "tiles": "local PNG",
+      "eager": "首次加载预取 MapDialog 和 Leaflet；其他功能相同"
+    },
+    "轮数": 10,
+    "中位数": {
+      "lazy": {
+        "jsBytes": 160162,
+        "lcp": 392,
+        "interactive": 888.3999999761581,
+        "tile": 996.4000000059605
+      },
+      "eager": {
+        "jsBytes": 205992,
+        "lcp": 380,
+        "interactive": 394.5,
+        "tile": 679.8999999761581
+      }
+    }
+  },
+  "TTFB": {
+    "时间": "2026-11-16T11:59:33.677Z",
+    "上游条件": "controlled 4000ms, not a real provider TTFB",
+    "读数": [
+      {
+        "kind": "baseline",
+        "phase": "cold",
+        "ttfb": 4219.450916,
+        "total": 4221.016166,
+        "bytes": 61703,
+        "upstream": 1
+      },
+      {
+        "kind": "baseline",
+        "phase": "warm",
+        "ttfb": 9.931833000000552,
+        "total": 12.921250000000327,
+        "bytes": 61703,
+        "upstream": 0
+      },
+      {
+        "kind": "baseline",
+        "phase": "warm",
+        "ttfb": 9.757416999999805,
+        "total": 12.45941700000003,
+        "bytes": 61703,
+        "upstream": 0
+      },
+      {
+        "kind": "baseline",
+        "phase": "warm",
+        "ttfb": 8.071582999999919,
+        "total": 9.978583000000071,
+        "bytes": 61703,
+        "upstream": 0
+      },
+      {
+        "kind": "baseline",
+        "phase": "warm",
+        "ttfb": 4.945208000000093,
+        "total": 5.948500000000422,
+        "bytes": 61703,
+        "upstream": 0
+      },
+      {
+        "kind": "baseline",
+        "phase": "warm",
+        "ttfb": 5.612833999999566,
+        "total": 6.644624999999905,
+        "bytes": 61703,
+        "upstream": 0
+      },
+      {
+        "kind": "baseline",
+        "phase": "restart",
+        "ttfb": 4154.677583999999,
+        "total": 4156.028458999999,
+        "bytes": 61703,
+        "upstream": 1
+      },
+      {
+        "kind": "shared",
+        "phase": "cold",
+        "ttfb": 4172.241,
+        "total": 4173.681208,
+        "bytes": 62061,
+        "upstream": 1
+      },
+      {
+        "kind": "shared",
+        "phase": "warm",
+        "ttfb": 7.578875000001062,
+        "total": 8.47583300000042,
+        "bytes": 62061,
+        "upstream": 0
+      },
+      {
+        "kind": "shared",
+        "phase": "warm",
+        "ttfb": 7.634334000000308,
+        "total": 8.568166999999448,
+        "bytes": 62061,
+        "upstream": 0
+      },
+      {
+        "kind": "shared",
+        "phase": "warm",
+        "ttfb": 6.6200840000001335,
+        "total": 10.508250000000771,
+        "bytes": 62061,
+        "upstream": 0
+      },
+      {
+        "kind": "shared",
+        "phase": "warm",
+        "ttfb": 7.541707999998835,
+        "total": 9.084624999999505,
+        "bytes": 62061,
+        "upstream": 0
+      },
+      {
+        "kind": "shared",
+        "phase": "warm",
+        "ttfb": 4.566500000000815,
+        "total": 5.300834000001487,
+        "bytes": 62061,
+        "upstream": 0
+      },
+      {
+        "kind": "shared",
+        "phase": "restart",
+        "ttfb": 118.71149999999943,
+        "total": 120.06962500000009,
+        "bytes": 62061,
+        "upstream": 0
+      }
+    ]
+  },
+  "共享缓存": {
+    "at": "2026-11-16T11:08:54.982Z",
+    "kind": "controlled-upstream",
+    "concurrent": {
+      "requests": 20,
+      "upstream": 1,
+      "versions": ["e1971cf31cbca2e9d0e1"],
+      "ms": [
+        389, 594, 428, 428, 468, 758, 391, 390, 513, 552, 595, 675, 472, 634, 555, 469, 636, 716,
+        431, 510
+      ]
+    },
+    "warm": [1.6674170000000004, 1.7270409999999856],
+    "summary": [
+      {
+        "cities": 1,
+        "bytes": 80,
+        "ms": 2.1175000000000637,
+        "before": {
+          "forecast": 1,
+          "summaries": 0,
+          "geocoding": 0,
+          "model": 0
+        },
+        "after": {
+          "forecast": 1,
+          "summaries": 0,
+          "geocoding": 0,
+          "model": 0
+        }
+      },
+      {
+        "cities": 3,
+        "bytes": 178,
+        "ms": 354.84191699999997,
+        "before": {
+          "forecast": 1,
+          "summaries": 0,
+          "geocoding": 0,
+          "model": 0
+        },
+        "after": {
+          "forecast": 1,
+          "summaries": 1,
+          "geocoding": 0,
+          "model": 0
+        }
+      },
+      {
+        "cities": 6,
+        "bytes": 327,
+        "ms": 354.7505000000001,
+        "before": {
+          "forecast": 1,
+          "summaries": 1,
+          "geocoding": 0,
+          "model": 0
+        },
+        "after": {
+          "forecast": 1,
+          "summaries": 2,
+          "geocoding": 0,
+          "model": 0
+        }
+      }
+    ],
+    "stale": {
+      "ms": 2.123583999999937,
+      "fetchedAt": "2026-11-16T11:08:55.362Z"
+    },
+    "expired": 503,
+    "recovered": {
+      "status": 200,
+      "calls": {
+        "forecast": 1,
+        "summaries": 0,
+        "geocoding": 0,
+        "model": 0
+      }
+    },
+    "ai": {
+      "accepted": 24,
+      "limited": 2,
+      "models": 0
+    }
+  },
+  "SEO": {
+    "时间": "2026-11-16T16:15:17.059Z",
+    "范围": "本地生产版真实天气城市页，不代表公网提交或收录",
+    "页数": 24,
+    "通过页数": 24,
+    "无效城市状态": 404,
+    "坐标页禁止索引": true,
+    "站点地图URL数": 24
+  },
+  "受控用户性能": {
+    "时间": "2026-11-16T11:12:47.405Z",
+    "范围": "浏览器 web-vitals 与 sendBeacon 真实链路；受控访问",
+    "样本数": 4,
+    "分组": [
+      {
+        "group": "local-validation/LCP/city/zh-Hans/mobile",
+        "count": 2,
+        "p75": 540,
+        "from": "2026-11-16T11:12:45.094Z",
+        "to": "2026-11-16T11:12:45.590Z"
+      },
+      {
+        "group": "local-validation/INP/city/zh-Hans/mobile",
+        "count": 1,
+        "p75": 64,
+        "from": "2026-11-16T11:12:46.675Z",
+        "to": "2026-11-16T11:12:46.675Z"
+      },
+      {
+        "group": "local-validation/CLS/city/zh-Hans/mobile",
+        "count": 1,
+        "p75": 0.011707958042272187,
+        "from": "2026-11-16T11:12:46.716Z",
+        "to": "2026-11-16T11:12:46.716Z"
+      }
+    ]
+  }
+}

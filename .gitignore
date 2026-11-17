@@ -1,0 +1,54 @@
+node_modules/
+.next/
+# 本地天气缓存、验收缓存与独立构建目录
+.next-*/
+.cache*/
+.weather-cache*/
+.format-tools/
+__pycache__/
+*.py[cod]
+.dart_tool/
+.gradle/
+android/local.properties
+**/build/
+.flutter-plugins-dependencies
+android/key.properties
+*.jks
+.env*
+!.env.example
+!.env.https.example
+*.iml
+.idea/
+.vscode/
+.DS_Store
+
+# 本机证书、私钥和发布签名
+certificates/
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.p12
+*.pfx
+*.keystore
+*.mobileprovision
+
+# Android 与 iOS 构建、归档及测试运行产物
+*.apk
+*.aab
+*.ipa
+*.app/
+*.dSYM/
+*.xcarchive/
+*.xcresult/
+DerivedData/
+
+# 原始验收产物保留本地；精简结果和精选截图位于 docs/verification/
+/qa/evidence/
+# Xcode 本机提示状态
+IDEWorkspaceChecks.plist
+
+# TypeScript 与 Next 生成文件
+**/*.tsbuildinfo
+web/next-env.d.ts

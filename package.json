@@ -1,0 +1,36 @@
+{
+  "name": "weather-atlas",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:https": "node --env-file-if-exists=.env.https.local qa/local-https.ts",
+    "prepare": "husky",
+    "format:setup": "node --env-file-if-exists=.env.https.local tools/setup-format.ts",
+    "format": "node tools/format.ts write",
+    "format:check": "node tools/format.ts check",
+    "format:staged": "node tools/format.ts staged",
+    "test:format-hook": "node qa/format-hook-check.ts",
+    "test:qa": "node --test qa/test/*.test.ts",
+    "typecheck": "tsc --noEmit && npm --prefix web run typecheck",
+    "typecheck:audit": "node tools/type-audit.ts"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/yauzl": "^3.4.0",
+    "@types/yazl": "^3.3.1",
+    "crc-32": "1.2.2",
+    "husky": "9.1.7",
+    "oxfmt": "0.79.0",
+    "playwright-core": "1.65.1",
+    "typescript": "5.9.3",
+    "yauzl": "3.4.0",
+    "yazl": "3.3.1"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}
