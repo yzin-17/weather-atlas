@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import WeatherScreen from './WeatherScreen.tsx';
 import { pageWeather } from '../lib/page-weather.ts';
 import { trace } from '../lib/trace.ts';
+import { forecastNamespace } from '../lib/weather.ts';
 export default async function ServerScreen({
   locale,
   place,
@@ -26,6 +27,7 @@ export default async function ServerScreen({
       locale={locale}
       place={place}
       initial={initial}
+      cacheNamespace={forecastNamespace()}
       home={!!home}
       homeContent={homeContent}
     />

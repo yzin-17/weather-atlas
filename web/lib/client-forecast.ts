@@ -2,7 +2,8 @@ import type { Coordinates, Forecast, WeatherSource } from './types.ts';
 import { isRecord as record, isArray, isFiniteNumber as finite } from './validation.ts';
 export const FORECAST_FRESH_MS = 15 * 60_000;
 export const FORECAST_STALE_MS = 3 * 60 * 60_000;
-export const forecastKey = (p: Coordinates) => `weather.${p.lat},${p.lon}`;
+export const forecastKey = (p: Coordinates, namespace: string) =>
+  `weather.v2:${namespace}:${p.lat},${p.lon}`;
 const code = (value: unknown): value is number =>
   finite(value) && Number.isInteger(value) && value >= 0 && value <= 99;
 const current = (value: unknown) =>

@@ -5,11 +5,20 @@ type WeatherScreenProps = {
   locale: Locale;
   place: Place;
   initial: Forecast | null;
+  cacheNamespace: string;
   home?: boolean;
   homeContent?: ReactNode;
 };
-import { lazy, Suspense, useState, useEffect, useRef, useCallback, useTransition } from 'react';
-import { decode, readJson } from '../lib/validation.ts';
+import {
+  lazy,
+  Suspense,
+  useState,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useCallback,
+  useTransition,
+} from 'react';
 import { validPlace } from '../lib/contracts.ts';
 import { useRouter } from 'next/navigation';
 import { locateWithPermissionRecovery } from '../lib/device-location.ts';
@@ -32,13 +41,7 @@ import OtherCities, { useSaved } from './OtherCities.tsx';
 import { readLocal, writeLocal, setHourPosition, takeHourPosition } from './storage.ts';
 import usePlaceLabel, { warmPlaceLabel } from './usePlaceLabel.tsx';
 import { mayPrepare } from './PreparedLink.tsx';
-import {
-  forecastKey,
-  preferredSnapshot,
-  validSnapshot,
-  snapshotAge,
-  FORECAST_FRESH_MS,
-} from '../lib/client-forecast.ts';
+import useWeatherQuery from './useWeatherQuery.ts';
 const loadSearch = () => import('./SearchDialog.tsx'),
   loadMap = () => Promise.all([import('./MapDialog.tsx'), import('leaflet')]).then(([mod]) => mod),
   loadAsk = () => import('./AskDialog.tsx');
@@ -56,6 +59,7 @@ export default function WeatherScreen({
   locale,
   place: originalPlace,
   initial,
+  cacheNamespace,
   home = false,
   homeContent,
 }: WeatherScreenProps) {
@@ -67,12 +71,15 @@ export default function WeatherScreen({
   } = usePlaceLabel(originalPlace, locale);
   const t = labels(locale),
     router = useRouter();
-  const [weather, setWeather] = useState(initial),
-    [modal, setModal] = useState(''),
+  const { weather, status, failure, reload, accept, retryBlocked } = useWeatherQuery(
+    place,
+    initial,
+    cacheNamespace,
+  );
+  const [modal, setModal] = useState(''),
     [askStarted, setAskStarted] = useState(false),
     [askVisible, setAskVisible] = useState(false),
     [error, setError] = useState(''),
-    [status, setStatus] = useState(initial ? 'ready' : 'error'),
     [locating, setLocating] = useState(false),
     [language, setLanguage] = useState<Locale | 'system'>(locale),
     [notice, setNotice] = useState(''),
@@ -84,8 +91,8 @@ export default function WeatherScreen({
   }, []);
   const nextChoice = useRef(0),
     addMode = useRef(false),
-    fetchJob = useRef<AbortController | null>(null),
     store = useSaved(locale);
+  const { rename } = store;
   const title = place.name || t.location;
   const PlaceHeading = home ? 'h2' : 'h1';
   const [navigating, startNavigation] = useTransition();
@@ -93,7 +100,7 @@ export default function WeatherScreen({
   const loadingPlace = navigating ? pendingPlace : null;
   useEffect(() => {
     if (!place.label?.source) return;
-    store.rename(place);
+    rename(place);
     const last = readLocal('last');
     if (
       validPlace(last) &&
@@ -101,7 +108,7 @@ export default function WeatherScreen({
       Number(last.lon) === Number(place.lon)
     )
       writeLocal('last', place);
-  }, [place]);
+  }, [place, rename]);
   const close = useCallback(() => {
     cancelLocation();
     nextChoice.current++;
@@ -192,18 +199,7 @@ export default function WeatherScreen({
         if (row) row.scrollLeft = restore.x;
       });
     }
-    const selected = preferredSnapshot(initial, readLocal(forecastKey(place)));
-    if (selected) {
-      setWeather(selected);
-      setStatus('ready');
-      if (selected.source !== 'demo') writeLocal(forecastKey(place), selected);
-      // SSR 后台更新／本地回退只表示缓存；浏览器等待刷新结果后再判断失败。
-      if (selected.stale || snapshotAge(selected) >= FORECAST_FRESH_MS) void reload();
-    }
-    return () => {
-      fetchJob.current?.abort();
-    };
-  }, [identity, initial]);
+  }, [identity, locale]);
   useEffect(
     () => () => {
       nextChoice.current++;
@@ -211,10 +207,11 @@ export default function WeatherScreen({
     },
     [cancelLocation],
   );
+  const autoLocate = useEffectEvent(locate);
   useEffect(() => {
     if (!home) return;
     // 首页每次进入都优先请求当前位置；显式城市／坐标页继续由 URL 决定。
-    locate();
+    autoLocate();
   }, [home, locale]);
   useEffect(() => {
     if (!notice) return;
@@ -233,29 +230,6 @@ export default function WeatherScreen({
     setAskStarted(true);
     setAskVisible(true);
   };
-  async function reload() {
-    fetchJob.current?.abort();
-    const ctrl = new AbortController();
-    fetchJob.current = ctrl;
-    setStatus('loading');
-    try {
-      const r = await fetch(`/api/weather?lat=${place.lat}&lon=${place.lon}&fresh=1`, {
-        signal: ctrl.signal,
-      });
-      if (!r.ok) throw Error();
-      const data = decode(await readJson(r), validSnapshot);
-      if (!ctrl.signal.aborted) {
-        setWeather(data);
-        setStatus(data.stale ? 'error' : 'ready');
-        if (data.source !== 'demo') writeLocal(forecastKey(place), data);
-      }
-    } catch {
-      if (!ctrl.signal.aborted) {
-        setStatus('error');
-        setWeather((old) => (old ? { ...old, stale: true } : old));
-      }
-    }
-  }
   function changeLanguage(value: Locale | 'system') {
     cancelLocation();
     nextChoice.current++;
@@ -402,26 +376,35 @@ export default function WeatherScreen({
                   className="sample"
                   data-testid="forecast-refresh"
                   aria-live="polite"
-                  disabled={status === 'loading'}
-                  onClick={reload}
+                  disabled={status === 'loading' || retryBlocked}
+                  onClick={() => void reload()}
                 >
                   {status === 'loading'
                     ? t.refreshingForecast
                     : status === 'error'
                       ? t.refreshFailed
                       : t.stale}
-                  {status !== 'loading' && <> · {t.retry}</>}
+                  {status !== 'loading' && <> · {retryBlocked ? t.weatherLimited : t.retry}</>}
                 </button>
               )}
             </div>
+            <div className="weather-feedback" role="status" aria-live="polite">
+              {failure && <span>{t[`weather_${failure}`]}</span>}
+            </div>
             {weather ? (
-              <Current weather={weather} t={t} locale={locale} />
+              <div aria-busy={status === 'loading'}>
+                <Current weather={weather} t={t} locale={locale} />
+              </div>
             ) : (
               <section className="unavailable" role="status">
                 <Icon name="chart" size={32} />
                 <h2>{status === 'loading' ? t.loading : t.unavailable}</h2>
-                <button className="primary" disabled={status === 'loading'} onClick={reload}>
-                  {t.retry}
+                <button
+                  className="primary"
+                  disabled={status === 'loading' || retryBlocked}
+                  onClick={() => void reload()}
+                >
+                  {retryBlocked ? t.weatherLimited : t.retry}
                 </button>
               </section>
             )}
@@ -441,6 +424,7 @@ export default function WeatherScreen({
                   t={t}
                   store={{ ...store, mode: weather?.source || 'open-meteo' }}
                   preparing={!locating && !navigating && !modal && !askVisible}
+                  cacheNamespace={cacheNamespace}
                   onChoose={choose}
                   onAdd={() => openSearch(true)}
                 />
@@ -561,11 +545,7 @@ export default function WeatherScreen({
             place={{ ...place, name: title }}
             weather={weather}
             onClose={() => setAskVisible(false)}
-            onRefresh={(snapshot) => {
-              setWeather(snapshot);
-              setStatus(snapshot.stale ? 'error' : 'ready');
-              if (snapshot.source === 'open-meteo') writeLocal(forecastKey(place), snapshot);
-            }}
+            onRefresh={accept}
           />
         )}
       </Suspense>

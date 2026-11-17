@@ -157,6 +157,43 @@ const rows = {
   updated: ['数据时间', '資料時間', 'Weather as of', '관측 기준'],
   fetched: ['获取于', '取得於', 'Retrieved', '수신 시각'],
   stale: ['缓存预报', '快取預報', 'Cached forecast', '저장된 예보'],
+  weatherLimited: ['稍后重试', '稍後重試', 'Try again shortly', '잠시 후 다시 시도'],
+  weather_network: [
+    '网络连接失败，请检查网络后重试。',
+    '網路連線失敗，請檢查網路後重試。',
+    'Connection failed. Check your network and try again.',
+    '네트워크 연결을 확인한 후 다시 시도해 주세요.',
+  ],
+  weather_timeout: [
+    '天气请求超时，请重试。',
+    '天氣請求逾時，請重試。',
+    'The weather request timed out. Try again.',
+    '날씨 요청 시간이 초과되었습니다. 다시 시도해 주세요.',
+  ],
+  weather_limited: [
+    '请求过于频繁，请稍后重试。',
+    '請求過於頻繁，請稍後重試。',
+    'Too many requests. Please wait before trying again.',
+    '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.',
+  ],
+  weather_unavailable: [
+    '天气服务暂时不可用，请稍后重试。',
+    '天氣服務暫時無法使用，請稍後重試。',
+    'The weather service is unavailable. Try again shortly.',
+    '날씨 서비스를 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+  ],
+  weather_input: [
+    '位置参数无效，请重新选择城市。',
+    '位置參數無效，請重新選擇城市。',
+    'This location is invalid. Select a city again.',
+    '위치가 올바르지 않습니다. 도시를 다시 선택해 주세요.',
+  ],
+  weather_invalid: [
+    '天气数据异常，请重试。',
+    '天氣資料異常，請重試。',
+    'The weather data is invalid. Try again.',
+    '날씨 데이터가 올바르지 않습니다. 다시 시도해 주세요.',
+  ],
   refreshingForecast: [
     '正在更新缓存预报…',
     '正在更新快取預報…',
@@ -191,6 +228,12 @@ const rows = {
   language: ['语言', '語言', 'Language', '언어'],
   system: ['跟随系统', '跟隨系統', 'Use system language', '시스템 언어'],
   ask: ['问天气', '問天氣', 'Ask about the forecast', '예보에 질문하기'],
+  askForecast: [
+    '天气数据暂时无法更新，请稍后重试。',
+    '天氣資料暫時無法更新，請稍後重試。',
+    'Weather data could not be updated. Please try again shortly.',
+    '날씨 데이터를 업데이트할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+  ],
   minimizeAsk: ['收起问天气', '收起問天氣', 'Minimize weather chat', '날씨 대화 접기'],
   askWelcome: [
     '想了解什么天气？',

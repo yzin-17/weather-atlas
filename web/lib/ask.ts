@@ -11,6 +11,8 @@ import type {
   SingleContext,
 } from './types.ts';
 import { errorInfo } from './errors.ts';
+import { AskError, isAskError } from './service-errors.ts';
+export { AskError } from './service-errors.ts';
 import { isRecord, isFiniteNumber as finite, requireValue } from './validation.ts';
 import { isLocale } from './catalog.ts';
 import { answerText } from './ask-copy.ts';
@@ -32,26 +34,6 @@ const integerIn = (n: unknown, from: number, to: number): n is number =>
   typeof n === 'number' && Number.isInteger(n) && n >= from && n <= to;
 const hour = 3600;
 const day = 86400;
-
-export class AskError extends Error {
-  status: number;
-  code: string;
-  static [Symbol.hasInstance](value: unknown) {
-    return (
-      isRecord(value) &&
-      value[Symbol.for('weather-atlas.AskError')] === true &&
-      typeof value.message === 'string' &&
-      typeof value.code === 'string' &&
-      finite(value.status)
-    );
-  }
-  constructor(status: number, code: string, message: string | undefined) {
-    super(message);
-    Object.defineProperty(this, Symbol.for('weather-atlas.AskError'), { value: true });
-    this.status = status;
-    this.code = code;
-  }
-}
 
 export function validateInput(raw: unknown): AskInput {
   if (!isRecord(raw)) throw invalid();
@@ -530,7 +512,7 @@ export async function modelPlan(
       ...(typeof useCurrentPlace === 'boolean' ? { useCurrentPlace } : {}),
     };
   } catch (err) {
-    if (err instanceof AskError) throw err;
+    if (isAskError(err)) throw err;
     const timeout = ['AbortError', 'TimeoutError'].includes(errorInfo(err).name);
     throw new AskError(
       timeout ? 504 : 502,

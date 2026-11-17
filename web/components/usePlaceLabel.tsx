@@ -1,5 +1,5 @@
 'use client';
-import type { Place, PlaceLabel, Locale } from '../lib/types.ts';
+import type { Coordinates, Place, PlaceLabel, Locale } from '../lib/types.ts';
 import { isRecord, isFiniteNumber, readJson } from '../lib/validation.ts';
 import { validPlaceLabel } from '../lib/contracts.ts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -11,8 +11,7 @@ interface LabelResult {
   retryAfterMs: number | null;
 }
 const inflight = new Map<string, Promise<LabelResult>>();
-async function loadPlaceLabel(place: Place, locale: Locale): Promise<LabelResult> {
-  if (!isCoordinatePlace(place)) return { place: null, retryAfterMs: null };
+async function loadPlaceLabel(place: Coordinates, locale: Locale): Promise<LabelResult> {
   const key = `${place.lat},${place.lon}.${locale}`,
     storage = `reverse-label.v2.${key}`,
     cached = readLocal(storage);
@@ -60,6 +59,7 @@ async function loadPlaceLabel(place: Place, locale: Locale): Promise<LabelResult
   return task;
 }
 export async function warmPlaceLabel(place: Place, locale: Locale): Promise<PlaceLabel | null> {
+  if (!isCoordinatePlace(place)) return null;
   return (await loadPlaceLabel(place, locale)).place;
 }
 
@@ -83,7 +83,7 @@ export default function usePlaceLabel(place: Place, locale: Locale) {
     const run = async () => {
       if (!active || pending || found) return;
       pending = true;
-      const result = await loadPlaceLabel(place, locale);
+      const result = await loadPlaceLabel({ lat: place.lat, lon: place.lon }, locale);
       pending = false;
       if (!active) return;
       found = !!result.place;

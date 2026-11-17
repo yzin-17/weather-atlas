@@ -13,6 +13,6 @@
     "types": ["node"],
     "jsx": "react-jsx"
   },
-  "include": ["qa/**/*.ts", "tools/**/*.ts", "web/types.d.ts"],
+  "include": ["qa/**/*.ts", "tools/**/*.ts", "web/types.d.ts", "eslint.config.ts"],
   "exclude": ["node_modules", "qa/evidence"]
 }

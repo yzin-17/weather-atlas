@@ -1,5 +1,7 @@
 import type { Coordinates, Forecast, Summary, Place, Locale, CatalogCity } from './types.ts';
 import { errorInfo } from './errors.ts';
+import { WeatherError } from './service-errors.ts';
+export { WeatherError } from './service-errors.ts';
 import {
   isRecord,
   isArray,
@@ -46,26 +48,6 @@ const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const CACHE_LIMIT = 512;
 
-export class WeatherError extends Error {
-  status: number;
-  code: string;
-  static [Symbol.hasInstance](value: unknown) {
-    return (
-      isRecord(value) &&
-      value[Symbol.for('weather-atlas.WeatherError')] === true &&
-      typeof value.message === 'string' &&
-      typeof value.code === 'string' &&
-      finite(value.status)
-    );
-  }
-  constructor(status: number, code: string, message: string) {
-    super(message);
-    Object.defineProperty(this, Symbol.for('weather-atlas.WeatherError'), { value: true });
-    this.status = status;
-    this.code = code;
-  }
-}
-
 function badInput(message: string) {
   return new WeatherError(400, 'INVALID_INPUT', message);
 }
@@ -96,7 +78,11 @@ export function parseBatch(value: string | null) {
 function keyOf(p: Coordinates) {
   return p.lat + ',' + p.lon;
 }
-function forecastKey(demo: boolean, p: Coordinates) {
+export function forecastNamespace(demo = process.env.WEATHER_MODE === 'demo', upstream = FORECAST) {
+  const provider = createHash('sha256').update(upstream).digest('hex').slice(0, 12);
+  return demo ? 'demo-v1' : `live-v1-${provider}`;
+}
+function serverForecastKey(demo: boolean, p: Coordinates) {
   const provider = createHash('sha256').update(FORECAST).digest('hex').slice(0, 12);
   return `forecast-v3:${demo ? 'demo' : provider}:${keyOf(p)}`;
 }
@@ -430,7 +416,7 @@ export function createWeatherService({
       });
       return forecast;
     };
-    const key = forecastKey(demo, p);
+    const key = serverForecastKey(demo, p);
     let value: Forecast;
     try {
       value = await (sharedStore
@@ -520,7 +506,8 @@ export function createWeatherService({
       if (hit && clock() - hit.at < 15 * MINUTE) result.set(k, hit.item);
       else {
         const persisted =
-          sharedStore && (await sharedStore.read(forecastKey(demo, p), cacheRecord(validSnapshot)));
+          sharedStore &&
+          (await sharedStore.read(serverForecastKey(demo, p), cacheRecord(validSnapshot)));
         if (persisted && clock() - persisted.at >= 0 && clock() - persisted.at < 15 * MINUTE)
           result.set(k, forecastSummary(p, persisted.value));
         else missing.push(p);
@@ -586,7 +573,7 @@ export function createWeatherService({
   return { getWeather, searchPlaces, getSummaries };
 }
 
-const serviceKey = Symbol.for('weather-atlas.forecasts.v1.' + (process.env.WEATHER_MODE || 'live'));
+const serviceKey = Symbol.for('weather-atlas.forecasts.v1.' + forecastNamespace());
 const services: typeof globalThis & { [serviceKey]?: ReturnType<typeof createWeatherService> } =
   globalThis;
 const service = (services[serviceKey] ??= createWeatherService({

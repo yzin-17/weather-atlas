@@ -1,5 +1,6 @@
 import type { AskOptions } from './types.ts';
 import { answerQuestion, AskError, validateInput } from './ask.ts';
+import { isAskError } from './service-errors.ts';
 import { sharedLimiter } from './shared-store.ts';
 import { streamAsk } from './ask-stream.ts';
 import type { WeatherPhase } from './chat-types.ts';
@@ -39,7 +40,7 @@ async function readJson(request: Request): Promise<unknown> {
     }
     return JSON.parse(Buffer.concat(chunks).toString('utf8'));
   } catch (e) {
-    if (e instanceof AskError) throw e;
+    if (isAskError(e)) throw e;
     throw new AskError(400, 'INVALID_INPUT', 'A valid JSON request is required.');
   } finally {
     reader.releaseLock();
@@ -106,7 +107,7 @@ export function makeAskHandler(
         return streamAsk(request.signal, execute);
       return response(await execute(request.signal));
     } catch (e) {
-      if (e instanceof AskError) return response({ code: e.code, error: e.message }, e.status);
+      if (isAskError(e)) return response({ code: e.code, error: e.message }, e.status);
       return response(
         {
           code: 'FORECAST_UNAVAILABLE',

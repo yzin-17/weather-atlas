@@ -16,10 +16,11 @@ type OtherCitiesProps = {
   onAdd: () => void;
   onChoose: (place: Place) => void;
   preparing?: boolean;
+  cacheNamespace: string;
 };
 import { decode, isArray, readJson } from '../lib/validation.ts';
 import { validPlace, validSummaryStore, validSummaries } from '../lib/contracts.ts';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import PreparedLink from './PreparedLink.tsx';
 import { cachedSummary, forecastKey } from '../lib/client-forecast.ts';
 import {
@@ -56,21 +57,22 @@ export function useSaved(locale: Locale) {
   function toggle(p: Place) {
     update(has(p) ? saved.filter((s) => stampKey(s) !== stampKey(p)) : [p, ...saved]);
   }
+  const rename = useCallback((place: Place) => {
+    setSaved((old) => {
+      const next = old.map((p) =>
+        stampKey(p) === stampKey(place) && isCoordinatePlace(p) ? { ...p, ...place } : p,
+      );
+      if (next.every((p, i) => JSON.stringify(p) === JSON.stringify(old[i]))) return old;
+      writeLocal('saved', next);
+      return next;
+    });
+  }, []);
   return {
     saved,
     ready,
     has,
     toggle,
-    rename(place: Place) {
-      setSaved((old) => {
-        const next = old.map((p) =>
-          stampKey(p) === stampKey(place) && isCoordinatePlace(p) ? { ...p, ...place } : p,
-        );
-        if (next.every((p, i) => JSON.stringify(p) === JSON.stringify(old[i]))) return old;
-        writeLocal('saved', next);
-        return next;
-      });
-    },
+    rename,
     add(p: Place) {
       if (!has(p)) update([p, ...saved]);
     },
@@ -84,6 +86,7 @@ export default function OtherCities({
   onAdd,
   onChoose,
   preparing = true,
+  cacheNamespace,
 }: OtherCitiesProps) {
   const cities = useMemo(
     () =>
@@ -97,17 +100,28 @@ export default function OtherCities({
   useEffect(() => {
     if (!store.ready) return;
     const abort = new AbortController();
-    const key = 'summaries.' + (store.mode || 'open-meteo');
+    const key = 'summaries.v2:' + cacheNamespace;
     const stored = readLocal(key);
     const cache: SummaryStore = validSummaryStore(stored) ? stored : {};
-    for (const city of cities) {
-      const summary = cachedSummary(city, readLocal(forecastKey(city), null), store.mode);
+    // 请求只依赖坐标集合；名称解析与语言变化不取消并重发相同摘要。
+    const points = coordinateKeys
+      ? coordinateKeys.split(';').map((pair) => {
+          const [lat, lon] = pair.split(',').map(Number);
+          return { lat, lon };
+        })
+      : [];
+    for (const city of points) {
+      const summary = cachedSummary(
+        city,
+        readLocal(forecastKey(city, cacheNamespace), null),
+        store.mode,
+      );
       if (summary && (!cache[stampKey(city)] || summary.time > cache[stampKey(city)].time))
         cache[stampKey(city)] = summary;
     }
     setSummaries(cache);
     setFailed(false);
-    const wanted = cities.filter(
+    const wanted = points.filter(
       (p) => !cache[stampKey(p)] || Date.now() - cache[stampKey(p)].time > 15 * 60_000,
     );
     async function load() {
@@ -123,7 +137,7 @@ export default function OtherCities({
           if (abort.signal.aborted) return;
           for (const p of items) cache[stampKey(p)] = { ...p, time: Date.now() };
           const keep: SummaryStore = {};
-          for (const city of cities) {
+          for (const city of points) {
             const key = stampKey(city),
               item = cache[key];
             if (item) keep[key] = item;
@@ -138,7 +152,7 @@ export default function OtherCities({
     }
     load();
     return () => abort.abort();
-  }, [coordinateKeys, attempt, store.ready, store.mode]);
+  }, [coordinateKeys, attempt, store.ready, store.mode, cacheNamespace]);
   return (
     <section className="other-cities">
       <div className="section-heading">

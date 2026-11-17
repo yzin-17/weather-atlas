@@ -13,7 +13,8 @@
     "test:format-hook": "node qa/format-hook-check.ts",
     "test:qa": "node --test qa/test/*.test.ts",
     "typecheck": "tsc --noEmit && npm --prefix web run typecheck",
-    "typecheck:audit": "node tools/type-audit.ts"
+    "typecheck:audit": "node tools/type-audit.ts",
+    "lint": "eslint --max-warnings 0 web/components"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.22",
@@ -22,8 +23,12 @@
     "@types/react-dom": "^19.3.0",
     "@types/yauzl": "^3.4.0",
     "@types/yazl": "^3.3.1",
+    "@typescript-eslint/parser": "8.73.0",
     "crc-32": "1.2.2",
+    "eslint": "10.15.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "husky": "9.1.7",
+    "jiti": "2.7.0",
     "oxfmt": "0.79.0",
     "playwright-core": "1.65.1",
     "typescript": "5.9.3",

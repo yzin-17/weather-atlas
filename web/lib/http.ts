@@ -1,5 +1,5 @@
 import { errorInfo } from './errors.ts';
-import { WeatherError } from './weather.ts';
+import { isWeatherError } from './service-errors.ts';
 import { trace } from './trace.ts';
 import { type Summary, type Forecast } from './types.ts';
 export async function respond(action: () => unknown | Promise<unknown>) {
@@ -8,7 +8,7 @@ export async function respond(action: () => unknown | Promise<unknown>) {
       headers: { 'Cache-Control': 'private, max-age=0, must-revalidate' },
     });
   } catch (error) {
-    const known = error instanceof WeatherError;
+    const known = isWeatherError(error);
     trace('weather-error', { known, name: errorInfo(error).name, code: errorInfo(error).code });
     return Response.json(
       {
@@ -17,7 +17,10 @@ export async function respond(action: () => unknown | Promise<unknown>) {
       },
       {
         status: known ? error.status : 500,
-        headers: { 'Cache-Control': 'no-store' },
+        headers: {
+          'Cache-Control': 'no-store',
+          ...(known && error.status === 429 ? { 'Retry-After': '30' } : {}),
+        },
       },
     );
   }

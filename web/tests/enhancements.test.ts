@@ -15,6 +15,7 @@ import { answerQuestion } from '../lib/ask.ts';
 import { catalog } from '../lib/catalog.ts';
 import { validateMetric, summarizeMetrics } from '../lib/rum.ts';
 import { WeatherError } from '../lib/weather.ts';
+import { isWeatherError } from '../lib/service-errors.ts';
 import { respond } from '../lib/http.ts';
 import { isRecord, isFiniteNumber, timed } from '../lib/validation.ts';
 
@@ -48,11 +49,15 @@ test('abandoned shared-cache lease is recovered', async () => {
   }
 });
 test('weather errors from another SSR/API module copy retain their HTTP status', async () => {
-  const other = await (import('../lib/weather.ts' + '?separate-module-copy') as Promise<
-    typeof import('../lib/weather.ts')
-  >);
-  const error = new other.WeatherError(503, 'UPSTREAM_UNAVAILABLE', 'Unavailable');
-  assert(error instanceof WeatherError);
+  const other: unknown = await import('../lib/service-errors.ts' + '?separate-module-copy');
+  assert(isRecord(other) && typeof other.WeatherError === 'function');
+  const error: unknown = Reflect.construct(other.WeatherError, [
+    503,
+    'UPSTREAM_UNAVAILABLE',
+    'Unavailable',
+  ]);
+  assert.equal(error instanceof WeatherError, false);
+  assert(isWeatherError(error));
   const response = await respond(() => {
     throw error;
   });
