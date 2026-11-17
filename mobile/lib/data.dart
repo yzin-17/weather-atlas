@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 import 'package:timezone/timezone.dart' as tz;
+import 'forecast_contract.dart';
 
 typedef Json = Map<String, dynamic>;
 const seoul = Place('1835848', 'Seoul', '', 'KR', 37.566, 126.9784);
@@ -157,7 +158,11 @@ class Forecast {
         double.negativeInfinity,
         (a, b) => math.max(a, b.toDouble()),
       );
-  Forecast.fromJson(this.raw)
+  factory Forecast.fromJson(Json raw) {
+    if (!validForecast(raw)) throw const FormatException('Invalid forecast');
+    return Forecast._(raw);
+  }
+  Forecast._(this.raw)
     : timezone = raw['timezone'] as String,
       version = raw['version'] as String,
       source = raw['source'] as String? ?? 'open-meteo',

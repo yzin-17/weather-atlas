@@ -21,6 +21,7 @@ Json snapshot({String v = 'test', DateTime? fetched}) => {
   'timezone': 'Asia/Seoul',
   'version': v,
   'source': 'demo',
+  'stale': false,
   'fetchedAt': (fetched ?? DateTime.now()).toUtc().toIso8601String(),
   'current': {'time': 1735736400, 'temp': 12, 'code': 2},
   'hours': [

@@ -1,0 +1,79 @@
+{
+  "description": "内部预报契约共享样本，Web 与 Flutter 使用同一输入和预期；path/value 表示对 base 的单字段替换。",
+  "base": {
+    "version": "contract-v1",
+    "source": "open-meteo",
+    "timezone": "Asia/Shanghai",
+    "fetchedAt": "2026-11-17T00:00:00Z",
+    "stale": false,
+    "current": { "time": 1794873600, "temp": 0, "code": 0 },
+    "hours": [
+      { "time": 1794873600, "temp": 0, "code": 0, "rain": null },
+      { "time": 1794877200, "temp": 0, "code": 0, "rain": 0 },
+      { "time": 1794880800, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794884400, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794888000, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794891600, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794895200, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794898800, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794902400, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794906000, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794909600, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794913200, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794916800, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794920400, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794924000, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794927600, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794931200, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794934800, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794938400, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794942000, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794945600, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794949200, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794952800, "temp": 1, "code": 1, "rain": 10 },
+      { "time": 1794956400, "temp": 1, "code": 1, "rain": 10 }
+    ],
+    "days": [
+      { "date": "2026-11-17", "min": 0, "max": 0, "code": 0 },
+      { "date": "2026-11-18", "min": 0, "max": 2, "code": 1 },
+      { "date": "2026-11-19", "min": 0, "max": 2, "code": 1 },
+      { "date": "2026-11-20", "min": 0, "max": 2, "code": 1 },
+      { "date": "2026-11-21", "min": 0, "max": 2, "code": 1 },
+      { "date": "2026-11-22", "min": 0, "max": 2, "code": 1 },
+      { "date": "2026-11-23", "min": 0, "max": 2, "code": 1 }
+    ]
+  },
+  "cases": [
+    { "name": "零值和缺测降水", "valid": true },
+    { "name": "负温度", "valid": true, "path": ["current", "temp"], "value": -12.5 },
+    { "name": "百分之百降水", "valid": true, "path": ["hours", 0, "rain"], "value": 100 },
+    { "name": "温度字符串", "valid": false, "path": ["current", "temp"], "value": "0" },
+    { "name": "空温度", "valid": false, "path": ["current", "temp"], "value": null },
+    { "name": "越界天气码", "valid": false, "path": ["current", "code"], "value": 100 },
+    { "name": "小数天气码", "valid": false, "path": ["current", "code"], "value": 1.5 },
+    { "name": "负降水概率", "valid": false, "path": ["hours", 0, "rain"], "value": -1 },
+    { "name": "过量降水概率", "valid": false, "path": ["hours", 0, "rain"], "value": 101 },
+    { "name": "降水字符串", "valid": false, "path": ["hours", 0, "rain"], "value": "0" },
+    { "name": "小时数组为空", "valid": false, "path": ["hours"], "value": [] },
+    { "name": "日数组为空", "valid": false, "path": ["days"], "value": [] },
+    { "name": "最低高于最高", "valid": false, "path": ["days", 0, "min"], "value": 1 },
+    { "name": "日期格式错误", "valid": false, "path": ["days", 0, "date"], "value": "17/11/2026" },
+    { "name": "采集时间错误", "valid": false, "path": ["fetchedAt"], "value": "bad" },
+    { "name": "未知来源", "valid": false, "path": ["source"], "value": "other" },
+    { "name": "错误旧数据标记", "valid": false, "path": ["stale"], "value": "false" },
+    { "name": "空版本", "valid": false, "path": ["version"], "value": "" },
+    { "name": "空时区", "valid": false, "path": ["timezone"], "value": "" },
+    {
+      "name": "缺少降水字段",
+      "valid": false,
+      "path": ["hours", 0],
+      "value": { "time": 1794873600, "temp": 0, "code": 0 }
+    },
+    {
+      "name": "比较小时错误",
+      "valid": false,
+      "path": ["comparisonHours"],
+      "value": [{ "time": 1794873600, "temp": 0, "code": 0, "rain": 101 }]
+    }
+  ]
+}
