@@ -4,6 +4,8 @@
 
 ## 长期保留的结论
 
+- [Review F-01～F-07 修复与取舍](review-repairs.md)：分批提交、刷新错误、异常守卫、缓存配置隔离、双端契约、Hooks 门禁与语义色值；生产浏览器 49 项及各自验收边界。
+
 - [Flutter 城市名称恢复](flutter-reverse-recovery.md)：四语按钮、有界重试、前台与系统语言、75 项测试、双平台 HTTP 和普通安装包。
 
 - [坐标名称恢复](reverse-recovery.md)：截图坐标真实覆盖复现、行政区域补查、短退避与 Web 恢复、四语竞态、HTTPS 和新版源码。
