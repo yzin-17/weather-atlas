@@ -6,7 +6,7 @@
 
 - 推送 `v*` 标签时，自动执行版本校验、Flutter 分析／回归、Android／iOS 构建和 Release 发布。
 - 在 Actions 的「移动端构建与发布」中点击 Run workflow：`release_tag` 留空时只构建，产物保留在该次运行的 Artifacts 中；填写已有版本标签时，为该标签构建并发布。
-- 标签必须与 `mobile/pubspec.yaml` 匹配。例如 `version: 1.1.2+5` 接受 `v1.1.2` 或 `v1.1.2+5`。不会因填写标签而创建新的 Git tag；手动发布需要先推送该标签。
+- 标签必须与 `mobile/pubspec.yaml` 匹配。从 `1.1.4+7` 起，发布标签使用 `v1.1.4`，构建号保留在安装包和产物清单内部；校验仍兼容早期的 `v<版本>+<构建号>` 标签。不会因填写标签而创建新的 Git tag；手动发布需要先推送该标签。
 
 配置位于 [mobile-release.yml](../.github/workflows/mobile-release.yml)，辅助校验为 [mobile_release.py](../tools/mobile_release.py)。固定 Flutter 3.38.9、JDK 21，Android 使用 Ubuntu 24.04，iOS 使用 macOS 15 及其预装 Xcode。每次 iOS 构建输出 Flutter、Xcode 和 CocoaPods 实际版本，不将本机 Xcode 版本当作托管机器版本。
 
@@ -55,8 +55,8 @@ gh variable set WEATHER_SITE_URL --body 'https://实际网站域名' --repo <own
 
 ```sh
 gh workflow run mobile-release.yml --ref main --repo <owner>/<repo>
-git tag v1.1.2+5 <已审核的提交>
-git push origin v1.1.2+5
+git tag -a v1.1.4 <已审核的提交> -m 'Weather Atlas v1.1.4'
+git push origin v1.1.4
 ```
 
 查看 Actions 中的分析、测试、Android、iOS 和发布任务；最终 Release 页面应有三类移动端产物和两份清单。Artifacts 默认保留 14 天；Release 附件按仓库的 Release 管理策略保留。
