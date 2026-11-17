@@ -107,3 +107,21 @@ python3 -m unittest discover -s tools -p test_mobile_release.py -v
 构建未配置公网 `WEATHER_API_BASE`／`WEATHER_SITE_URL` 或固定调试签名，也没有上传本机签名；Release 说明明确要求首次安装后填写可达的天气服务，并说明 Android 覆盖升级及 iOS 未签名的限制。本次没有将 CI 构建成功写成真机安装、真实 GPS 或商店发布成功。
 
 后续可从公开仓库克隆正常开发，再推送版本标签；原有工作区仍保留未提交修改，本轮没有替它强行合并或改写历史。
+
+## v1.1.3+6 发布记录
+
+2026-11-17 将现有修复推送到公开仓库，公开源码与本机已提交源码的 Git tree 一致。递增版本为 `1.1.3+6`，标签指向 `93614041237a08d3d4717c204a4f0edf1e510077`。[标签发布流水线 44059965214](https://github.com/yzin-17/weather-atlas/actions/runs/44059965214) 的五个任务全部成功：版本辅助测试 7/7，Flutter 分析无问题、全量测试 104/104，Android Debug、iOS Simulator Debug、iOS Device Release Unsigned 均构建成功。主分支与标签对应的两轮 Web 检查也全部通过（44059964116、44059965118）。
+
+[Release v1.1.3+6](https://github.com/yzin-17/weather-atlas/releases/tag/v1.1.3%2B6) 于 2026-11-17 18:03:58（Asia/Shanghai）公开，`draft=false`，5 个附件均为 `uploaded`。下载 `BUILD-MANIFEST.json` 和 `SHA256SUMS`，验证两份文件自身的服务器摘要，并逐项核对三类产物的名称、字节数、服务器摘要和清单提交，全部一致。大附件的 CRC 与应用结构由流水线验证，沿用前轮取舍，不为重复核对摘要再次下载大附件。
+
+| 产物 | 字节 | SHA-256 |
+| --- | ---: | --- |
+| Android Debug APK | 159,223,910 | `605c12b09df032b122d8e4363a5f3c4374c4b0592a2fde2ad9eac6a5a7c107c9` |
+| iOS Simulator Debug ZIP | 54,449,525 | `efefa9b2c521af56f90c30695753631576a018586b4d9745351008f241db56d1` |
+| iOS Device Release Unsigned ZIP | 7,631,366 | `30b12a41250dff9309cfd312ff435dedcff14a69d08f2054932c7c0c4e6df8ff` |
+
+源码 ZIP 从上述标签执行 `git archive` 生成，397 个文件、4,263,899 B，SHA-256 为 `df08d8cfa33411e46e6fc2fcc20f4a82badcd36cf0634501e5480ad67597db33`；通过 CRC、版本一致性及凭据扫描。本机交付路径为 `/Users/yzin/Documents/Codex/2026-11-16/weather-atlas-24-24-readme-md/outputs/v1.1.3-build6/Weather-Atlas-Source-v1.1.3-build6.zip`。本节发布证据在标签之后补记，不移动已经公开的标签。
+
+版本取舍：`1.1.3` 是用户版本号；`+6` 是 Flutter 构建号，对应 Android `versionCode` 与 iOS `CFBundleVersion`。Git 标签沿用现有的完整版本格式，便于标签、清单与安装包一一对应；这是项目约定，GitHub 不要求标签包含构建号。构建号需要随发布递增，对外名称可只展示 `v1.1.3`。
+
+本轮沿用已有服务地址变量与签名配置，没有新增线上部署或上传签名。Android 为调试签名包；iOS 设备产物未签名，需要有效证书与描述文件才能安装到真机。本次证据为托管构建和发布校验，没有新增真机安装、GPS 或真实模型验收。
